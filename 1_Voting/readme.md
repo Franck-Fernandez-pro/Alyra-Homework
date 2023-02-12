@@ -1,3 +1,5 @@
+# Voting
+
 1. En tant qu'owner, ajouter des utilisateurs avec `addVoter`.
 2. En tant qu'owner, passez au `WorkflowStatus` suivant (ProposalsRegistrationStarted) avec `incrementStatus`.
 3. En tant qu'owner ou voter, vous pouvez ajouter une proposition avec `addProposal`.
