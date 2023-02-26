@@ -60,30 +60,35 @@ contract('Voting', (accounts) => {
           'Proposals are not allowed yet'
         );
       });
+
       it('setVote should revert', async () => {
         await expectRevert(
           voting.setVote.call(0, { from: _owner }),
           'Voting session havent started yet'
         );
       });
+
       it('endProposalsRegistering should revert', async () => {
         await expectRevert(
           voting.endProposalsRegistering.call({ from: _owner }),
           'Registering proposals havent started yet'
         );
       });
+
       it('startVotingSession should revert', async () => {
         await expectRevert(
           voting.startVotingSession.call({ from: _owner }),
           'Registering proposals phase is not finished'
         );
       });
+
       it('endVotingSession should revert', async () => {
         await expectRevert(
           voting.endVotingSession.call({ from: _owner }),
           'Voting session havent started yet'
         );
       });
+
       it('tallyVotes should revert', async () => {
         await expectRevert(
           voting.tallyVotes.call({ from: _owner }),
@@ -188,6 +193,15 @@ contract('Voting', (accounts) => {
       });
     });
 
+    it('only owner can startProposalsRegistering()', async () => {
+      await expectRevert(
+        voting.startProposalsRegistering({
+          from: _voter1,
+        }),
+        'Ownable: caller is not the owner'
+      );
+    });
+
     describe('After ProposalsRegistrationStarted', () => {
       beforeEach(async () => {
         await setVoters(voting, [_owner, _voter1, _voter2, _voter3], _owner);
@@ -282,6 +296,15 @@ contract('Voting', (accounts) => {
         _workflowStatus.ProposalsRegistrationEnded
       );
     });
+
+    it('only owner can endProposalsRegistering()', async () => {
+      await expectRevert(
+        voting.endProposalsRegistering({
+          from: _voter1,
+        }),
+        'Ownable: caller is not the owner'
+      );
+    });
   });
 
   //----------------------------------------------------------------------------------------
@@ -320,6 +343,15 @@ contract('Voting', (accounts) => {
       const status = await voting.workflowStatus.call({ from: _owner });
 
       expect(status).to.be.bignumber.eq(_workflowStatus.VotingSessionStarted);
+    });
+
+    it('only owner can startVotingSession()', async () => {
+      await expectRevert(
+        voting.startVotingSession({
+          from: _voter1,
+        }),
+        'Ownable: caller is not the owner'
+      );
     });
 
     describe('After VotingSessionStarted', () => {
@@ -412,6 +444,15 @@ contract('Voting', (accounts) => {
 
       expect(status).to.be.bignumber.eq(_workflowStatus.VotingSessionEnded);
     });
+
+    it('only owner can endVotingSession()', async () => {
+      await expectRevert(
+        voting.endVotingSession({
+          from: _voter1,
+        }),
+        'Ownable: caller is not the owner'
+      );
+    });
   });
 
   //----------------------------------------------------------------------------------------
@@ -477,6 +518,15 @@ contract('Voting', (accounts) => {
         const status = await voting.workflowStatus.call({ from: _owner });
 
         expect(status).to.be.bignumber.eq(_workflowStatus.VotesTallied);
+      });
+
+      it('only owner can tallyVotes()', async () => {
+        await expectRevert(
+          voting.tallyVotes({
+            from: _voter1,
+          }),
+          'Ownable: caller is not the owner'
+        );
       });
 
       describe('After tallyVotes', () => {
