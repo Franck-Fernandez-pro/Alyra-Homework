@@ -57,42 +57,42 @@ contract('Voting', (accounts) => {
         await voting.addVoter(_owner, { from: _owner });
       });
 
-      it('addProposal should revert', async () => {
+      it('addProposal() should revert', async () => {
         await expectRevert(
           voting.addProposal('proposal', { from: _owner }),
           'Proposals are not allowed yet'
         );
       });
 
-      it('setVote should revert', async () => {
+      it('setVote() should revert', async () => {
         await expectRevert(
           voting.setVote(0, { from: _owner }),
           'Voting session havent started yet'
         );
       });
 
-      it('endProposalsRegistering should revert', async () => {
+      it('endProposalsRegistering() should revert', async () => {
         await expectRevert(
           voting.endProposalsRegistering({ from: _owner }),
           'Registering proposals havent started yet'
         );
       });
 
-      it('startVotingSession should revert', async () => {
+      it('startVotingSession() should revert', async () => {
         await expectRevert(
           voting.startVotingSession({ from: _owner }),
           'Registering proposals phase is not finished'
         );
       });
 
-      it('endVotingSession should revert', async () => {
+      it('endVotingSession() should revert', async () => {
         await expectRevert(
           voting.endVotingSession({ from: _owner }),
           'Voting session havent started yet'
         );
       });
 
-      it('tallyVotes should revert', async () => {
+      it('tallyVotes() should revert', async () => {
         await expectRevert(
           voting.tallyVotes({ from: _owner }),
           'Current status is not voting session ended'
@@ -105,12 +105,12 @@ contract('Voting', (accounts) => {
   //------------------------------       REGISTER VOTERS      ------------------------------
   //----------------------------------------------------------------------------------------
   describe('RegisteringVoters', () => {
-    it('addVoter should emit VoterRegistered event', async () => {
+    it('addVoter() should emit VoterRegistered event', async () => {
       const recipient = await voting.addVoter(_voter1, { from: _owner });
       expectEvent(recipient, _event.VoterRegistered, { voterAddress: _voter1 });
     });
 
-    it('_owner can add a voter', async () => {
+    it('_owner can addVoter()', async () => {
       await voting.addVoter(_owner, { from: _owner });
       const { isRegistered, votedProposalId, hasVoted } =
         await voting.getVoter.call(_owner, {
@@ -162,7 +162,7 @@ contract('Voting', (accounts) => {
   //-----------------------       PROPOSALS REGISTRATIONS STARTED      ---------------------
   //----------------------------------------------------------------------------------------
   describe('ProposalsRegistrationStarted', () => {
-    it('startProposalsRegistering should emit WorkflowStatusChange event', async () => {
+    it('startProposalsRegistering() should emit WorkflowStatusChange event', async () => {
       const recipient = await voting.startProposalsRegistering({
         from: _owner,
       });
@@ -173,7 +173,7 @@ contract('Voting', (accounts) => {
       });
     });
 
-    it('startProposalsRegistering should change workflowStatus', async () => {
+    it('startProposalsRegistering() should change workflowStatus', async () => {
       await voting.startProposalsRegistering({
         from: _owner,
       });
@@ -305,7 +305,7 @@ contract('Voting', (accounts) => {
       });
     });
 
-    it('endProposalsRegistering should emit WorkflowStatusChange event', async () => {
+    it('endProposalsRegistering() should emit WorkflowStatusChange event', async () => {
       const recipient = await voting.endProposalsRegistering({
         from: _owner,
       });
@@ -316,7 +316,7 @@ contract('Voting', (accounts) => {
       });
     });
 
-    it('endProposalsRegistering should change workflowStatus', async () => {
+    it('endProposalsRegistering() should change workflowStatus', async () => {
       await voting.endProposalsRegistering({
         from: _owner,
       });
@@ -355,7 +355,7 @@ contract('Voting', (accounts) => {
       });
     });
 
-    it('startVotingSession should emit WorkflowStatusChange event', async () => {
+    it('startVotingSession() should emit WorkflowStatusChange event', async () => {
       const recipient = await voting.startVotingSession({
         from: _owner,
       });
@@ -366,7 +366,7 @@ contract('Voting', (accounts) => {
       });
     });
 
-    it('startVotingSession should change workflowStatus', async () => {
+    it('startVotingSession() should change workflowStatus', async () => {
       await voting.startVotingSession({
         from: _owner,
       });
@@ -529,51 +529,44 @@ contract('Voting', (accounts) => {
       });
     });
 
-    describe('Before tallyVotes', () => {
-      it('tallyVotes should emit WorkflowStatusChange.VotesTallied event', async () => {
-        const recipient = await voting.tallyVotes({
-          from: _owner,
-        });
-
-        expectEvent(recipient, _event.WorkflowStatusChange, {
-          previousStatus: _workflowStatus.VotingSessionEnded,
-          newStatus: _workflowStatus.VotesTallied,
-        });
+    it('tallyVotes should emit WorkflowStatusChange.VotesTallied event', async () => {
+      const recipient = await voting.tallyVotes({
+        from: _owner,
       });
 
-      it('tallyVotes should change workflowStatus', async () => {
-        await voting.tallyVotes({
-          from: _owner,
-        });
-        const status = await voting.workflowStatus.call({ from: _owner });
+      expectEvent(recipient, _event.WorkflowStatusChange, {
+        previousStatus: _workflowStatus.VotingSessionEnded,
+        newStatus: _workflowStatus.VotesTallied,
+      });
+    });
 
-        expect(status).to.be.bignumber.eq(_workflowStatus.VotesTallied);
+    it('tallyVotes should change workflowStatus', async () => {
+      await voting.tallyVotes({
+        from: _owner,
+      });
+      const status = await voting.workflowStatus.call({ from: _owner });
+
+      expect(status).to.be.bignumber.eq(_workflowStatus.VotesTallied);
+    });
+
+    it('only owner can tallyVotes()', async () => {
+      await expectRevert(
+        voting.tallyVotes({
+          from: _voter1,
+        }),
+        'Ownable: caller is not the owner'
+      );
+    });
+
+    it('tallyVotes should update winningProposalID with the winning proposal', async () => {
+      await voting.tallyVotes({
+        from: _owner,
+      });
+      const winningID = await voting.winningProposalID.call({
+        from: _owner,
       });
 
-      it('only owner can tallyVotes()', async () => {
-        await expectRevert(
-          voting.tallyVotes({
-            from: _voter1,
-          }),
-          'Ownable: caller is not the owner'
-        );
-      });
-
-      describe('After tallyVotes', () => {
-        beforeEach(async () => {
-          await voting.tallyVotes({
-            from: _owner,
-          });
-        });
-
-        it('tallyVotes should update winningProposalID with the winning proposal', async () => {
-          const winningID = await voting.winningProposalID.call({
-            from: _owner,
-          });
-
-          expect(winningID).to.be.bignumber.eq(new BN(1));
-        });
-      });
+      expect(winningID).to.be.bignumber.eq(new BN(1));
     });
   });
 });
