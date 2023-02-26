@@ -20,6 +20,9 @@ const _event = {
 const setVoters = async (contract, voters, _owner) =>
   voters.map(async (voter) => await contract.addVoter(voter, { from: _owner }));
 
+//----------------------------------------------------------------------------------------
+//----------------------------            VOTING          --------------------------------
+//----------------------------------------------------------------------------------------
 contract('Voting', (accounts) => {
   let voting;
   const _owner = accounts[0];
@@ -56,42 +59,42 @@ contract('Voting', (accounts) => {
 
       it('addProposal should revert', async () => {
         await expectRevert(
-          voting.addProposal.call('proposal', { from: _owner }),
+          voting.addProposal('proposal', { from: _owner }),
           'Proposals are not allowed yet'
         );
       });
 
       it('setVote should revert', async () => {
         await expectRevert(
-          voting.setVote.call(0, { from: _owner }),
+          voting.setVote(0, { from: _owner }),
           'Voting session havent started yet'
         );
       });
 
       it('endProposalsRegistering should revert', async () => {
         await expectRevert(
-          voting.endProposalsRegistering.call({ from: _owner }),
+          voting.endProposalsRegistering({ from: _owner }),
           'Registering proposals havent started yet'
         );
       });
 
       it('startVotingSession should revert', async () => {
         await expectRevert(
-          voting.startVotingSession.call({ from: _owner }),
+          voting.startVotingSession({ from: _owner }),
           'Registering proposals phase is not finished'
         );
       });
 
       it('endVotingSession should revert', async () => {
         await expectRevert(
-          voting.endVotingSession.call({ from: _owner }),
+          voting.endVotingSession({ from: _owner }),
           'Voting session havent started yet'
         );
       });
 
       it('tallyVotes should revert', async () => {
         await expectRevert(
-          voting.tallyVotes.call({ from: _owner }),
+          voting.tallyVotes({ from: _owner }),
           'Current status is not voting session ended'
         );
       });
@@ -129,7 +132,7 @@ contract('Voting', (accounts) => {
     it('_notVoter can not use getVoter()', async () => {
       await voting.addVoter(_owner, { from: _owner });
       await expectRevert(
-        voting.getVoter.call(_owner, {
+        voting.getVoter(_owner, {
           from: _notVoter,
         }),
         "You're not a voter"
@@ -222,12 +225,36 @@ contract('Voting', (accounts) => {
         expect(voteCount).to.be.bignumber.eq(new BN(0));
       });
 
+      it('_voter1 can add multiple proposals', async () => {
+        await voting.addProposal(_proposal1, {
+          from: _voter1,
+        });
+        await voting.addProposal(_proposal2, {
+          from: _voter1,
+        });
+        await voting.addProposal(_proposal3, {
+          from: _voter1,
+        });
+
+        const p1 = await voting.getOneProposal.call(new BN(1));
+        expect(p1.description).to.be.eq(_proposal1);
+        expect(p1.voteCount).to.be.bignumber.eq(new BN(0));
+
+        const p2 = await voting.getOneProposal.call(new BN(2));
+        expect(p2.description).to.be.eq(_proposal2);
+        expect(p2.voteCount).to.be.bignumber.eq(new BN(0));
+
+        const p3 = await voting.getOneProposal.call(new BN(3));
+        expect(p3.description).to.be.eq(_proposal3);
+        expect(p3.voteCount).to.be.bignumber.eq(new BN(0));
+      });
+
       it('_notVoter can not use getOneProposal()', async () => {
         await voting.addProposal(_proposal1, {
           from: _voter1,
         });
         await expectRevert(
-          voting.getOneProposal.call(new BN(1), {
+          voting.getOneProposal(new BN(1), {
             from: _notVoter,
           }),
           "You're not a voter"
