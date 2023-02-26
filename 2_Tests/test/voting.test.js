@@ -112,11 +112,14 @@ contract('Voting', (accounts) => {
 
     it('_owner can add a voter', async () => {
       await voting.addVoter(_owner, { from: _owner });
-      const { isRegistered } = await voting.getVoter.call(_owner, {
-        from: _owner,
-      });
+      const { isRegistered, votedProposalId, hasVoted } =
+        await voting.getVoter.call(_owner, {
+          from: _owner,
+        });
 
       expect(isRegistered).to.be.true;
+      expect(votedProposalId).to.be.bignumber.eq(new BN(0));
+      expect(hasVoted).to.be.false;
     });
 
     it('check voter struct after register', async () => {
@@ -217,7 +220,7 @@ contract('Voting', (accounts) => {
         await voting.addProposal(_proposal1, {
           from: _voter1,
         });
-        const { description, voteCount } = await voting.getOneProposal(
+        const { description, voteCount } = await voting.getOneProposal.call(
           new BN(1)
         );
 
@@ -278,7 +281,7 @@ contract('Voting', (accounts) => {
       });
 
       it('proposal[0] should be the genesis', async () => {
-        const { description } = await voting.getOneProposal(new BN(0), {
+        const { description } = await voting.getOneProposal.call(new BN(0), {
           from: _voter1,
         });
 
@@ -392,7 +395,7 @@ contract('Voting', (accounts) => {
         await voting.setVote(new BN(1), {
           from: _voter1,
         });
-        const { voteCount } = await voting.getOneProposal(new BN(1));
+        const { voteCount } = await voting.getOneProposal.call(new BN(1));
 
         expect(voteCount).to.be.bignumber.eq(new BN(1));
       });
@@ -401,7 +404,7 @@ contract('Voting', (accounts) => {
         await voting.setVote(new BN(1), {
           from: _voter1,
         });
-        const { hasVoted } = await voting.getVoter(_voter1);
+        const { hasVoted } = await voting.getVoter.call(_voter1);
 
         expect(hasVoted).to.be.true;
       });
