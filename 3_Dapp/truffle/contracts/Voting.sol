@@ -3,6 +3,9 @@
 pragma solidity 0.8.17;
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
+/// @title Voting
+/// @author Cyril Castagnet
+/// @notice Basic contract to vote
 contract Voting is Ownable {
     uint256 public winningProposalID;
 
@@ -44,6 +47,8 @@ contract Voting is Ownable {
     }
 
     // ::::::::::::: GETTERS ::::::::::::: //
+    /// @param _addr of voter
+    /// @return Voter struct
     function getVoter(address _addr)
         external
         view
@@ -53,6 +58,8 @@ contract Voting is Ownable {
         return voters[_addr];
     }
 
+    /// @param _id of proposal
+    /// @return Proposal struct
     function getOneProposal(uint256 _id)
         external
         view
@@ -63,6 +70,8 @@ contract Voting is Ownable {
     }
 
     // ::::::::::::: REGISTRATION ::::::::::::: //
+    /// @dev Register a new voter from his address
+    /// @param _addr of user to register as Voter
     function addVoter(address _addr) external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.RegisteringVoters,
@@ -75,6 +84,8 @@ contract Voting is Ownable {
     }
 
     // ::::::::::::: PROPOSAL ::::::::::::: //
+    /// @dev Register a new proposal
+    /// @param _desc of a the new proposal
     function addProposal(string calldata _desc) external onlyVoters {
         require(
             workflowStatus == WorkflowStatus.ProposalsRegistrationStarted,
@@ -93,6 +104,8 @@ contract Voting is Ownable {
     }
 
     // ::::::::::::: VOTE ::::::::::::: //
+    /// @dev Make a user vote
+    /// @param _id of the propsal to vote
     function setVote(uint256 _id) external onlyVoters {
         require(
             workflowStatus == WorkflowStatus.VotingSessionStarted,
@@ -109,6 +122,9 @@ contract Voting is Ownable {
     }
 
     // ::::::::::::: STATE ::::::::::::: //
+    /** @dev Update workflowStatus to ProposalsRegistrationStarted.
+     * It init proposal[0] with a GENESIS proposal
+     */
     function startProposalsRegistering() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.RegisteringVoters,
@@ -126,6 +142,7 @@ contract Voting is Ownable {
         );
     }
 
+    /// @dev Update workflowStatus to ProposalsRegistrationEnded
     function endProposalsRegistering() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.ProposalsRegistrationStarted,
@@ -138,6 +155,7 @@ contract Voting is Ownable {
         );
     }
 
+    /// @dev Update workflowStatus to VotingSessionStarted
     function startVotingSession() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.ProposalsRegistrationEnded,
@@ -150,6 +168,7 @@ contract Voting is Ownable {
         );
     }
 
+    /// @dev Update workflowStatus to VotingSessionEnded
     function endVotingSession() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.VotingSessionStarted,
@@ -162,6 +181,10 @@ contract Voting is Ownable {
         );
     }
 
+    /**
+     * @dev Update winningProposalID with the proposal with the most proposalsArray[n].voteCount.
+     * Update workflowStatus to VotingSessionEnded
+     */
     function tallyVotes() external onlyOwner {
         require(
             workflowStatus == WorkflowStatus.VotingSessionEnded,
