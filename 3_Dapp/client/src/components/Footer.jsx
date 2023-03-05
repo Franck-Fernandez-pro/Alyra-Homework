@@ -1,5 +1,9 @@
 function Link({ uri, text }) {
-  return <a href={uri} target="_blank" rel="noreferrer">{text}</a>;
+  return (
+    <a href={uri} target="_blank" rel="noreferrer">
+      {text}
+    </a>
+  );
 }
 
 function Footer() {
@@ -10,7 +14,7 @@ function Footer() {
       <Link uri={"https://reactjs.org"} text={"React"} />
       <Link uri={"https://soliditylang.org"} text={"Solidity"} />
       <Link uri={"https://ethereum.org"} text={"Ethereum"} />
-    </footer >
+    </footer>
   );
 }
 

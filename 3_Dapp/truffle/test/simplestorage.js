@@ -1,7 +1,7 @@
 const SimpleStorage = artifacts.require("SimpleStorage");
 
-contract('SimpleStorage', () => {
-  it('should read newly written values', async() => {
+contract("SimpleStorage", () => {
+  it("should read newly written values", async () => {
     const simpleStorageInstance = await SimpleStorage.deployed();
     var value = (await simpleStorageInstance.read()).toNumber();
 
