@@ -1,4 +1,4 @@
-import { EthProvider } from './contexts/EthContext';
+import { EthProvider } from "./contexts/EthContext";
 
 function App() {
   return (
