@@ -1,6 +1,7 @@
 function Welcome() {
   return (
     <div className="welcome">
+      <button className="btn bg-pink-500">Toto</button>
       <h1>👋 Welcome to the Truffle + React Box!</h1>
       <p>
         This is everything you need to start using Truffle to write, compile,
