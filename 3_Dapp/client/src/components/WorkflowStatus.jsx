@@ -2,9 +2,9 @@ import React from 'react';
 
 function WorkflowStatus (props) {
   const getStatusStyle = () => {
-    if (props.status === "done") { return "bg-lime-500" }
-    if (props.status === "current") { return "bg-sky-700" }
-    return "bg-stone-500";
+    if (props.status === "done") { return "bg-success" }
+    if (props.status === "current") { return "bg-info" }
+    return "bg-neutral";
   }
 
   const getStatusText = () => {
