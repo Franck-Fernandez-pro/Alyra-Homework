@@ -1,14 +1,14 @@
-import React, { useReducer, useCallback, useEffect } from "react";
-import Web3 from "web3";
-import EthContext from "./EthContext";
-import { reducer, actions, initialState } from "./state";
+import React, { useReducer, useCallback, useEffect } from 'react';
+import Web3 from 'web3';
+import EthContext from './EthContext';
+import { reducer, actions, initialState } from './state';
 
 function EthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const init = useCallback(async (artifact) => {
     if (artifact) {
-      const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
+      const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
       const accounts = await web3.eth.requestAccounts();
       const networkID = await web3.eth.net.getId();
       const { abi } = artifact;
@@ -29,7 +29,7 @@ function EthProvider({ children }) {
   useEffect(() => {
     const tryInit = async () => {
       try {
-        const artifact = require("../../contracts/SimpleStorage.json");
+        const artifact = require('../../contracts/Voting.json');
         init(artifact);
       } catch (err) {
         console.error(err);
@@ -40,7 +40,7 @@ function EthProvider({ children }) {
   }, [init]);
 
   useEffect(() => {
-    const events = ["chainChanged", "accountsChanged"];
+    const events = ['chainChanged', 'accountsChanged'];
     const handleChange = () => {
       init(state.artifact);
     };
