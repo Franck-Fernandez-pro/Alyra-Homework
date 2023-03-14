@@ -30,14 +30,22 @@ function Workflow() {
 
   const getStatus = (workflow) => {
     console.log("current wf ", currentWorkflow, " comp wf ",  workflow);
-    if (currentWorkflow == workflow) { return "current" }
-    if (currentWorkflow > workflow) { return "done" }
+    if (currentWorkflow == workflow) {
+      console.log("current")
+      return "current"
+    }
+    if (currentWorkflow > workflow) {
+      console.log("done")
+      return "done"
+    }
+    console.log("current")
+
     return "pending";
   };
 
   return (
     <div className="border">
-      <WorkflowStatus status={getStatus(0)} label="Enregistrement des voteurs" />
+      <WorkflowStatus status={getStatus(0)} label="Enregistrement des élécteurs" />
       <WorkflowStatus status={getStatus(1)} label="Enregistrement des proposition en cours" />
       <WorkflowStatus status={getStatus(2)} label="Enregistrement des propositions fermé" />
       <WorkflowStatus status={getStatus(3)} label="Session de vote en cours" />
