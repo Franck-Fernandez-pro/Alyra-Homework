@@ -1,10 +1,10 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Workflow from './components/Workflow';
+import NavBar from './components/NavBar';
 
 function App() {
   return (
     <div>
-      <ConnectButton />
+      <NavBar />
       <Workflow />
     </div>
   );
