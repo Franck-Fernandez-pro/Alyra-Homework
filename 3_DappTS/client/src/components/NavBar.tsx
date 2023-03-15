@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useSigner } from 'wagmi';
-
-// import logo from "../assets/alyra.svg";
-// const logo = require('../assets/logo');
 
 
 function NavBar () {
