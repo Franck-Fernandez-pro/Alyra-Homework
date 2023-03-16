@@ -26,7 +26,7 @@ function NavBar () {
       </div>
       <div className="w-full flex justify-center">
         <img
-          className="h-24"
+          className="h-24 rounded-2xl"
           src="./logo.png"
           alt="app logo"
         />
