@@ -2,44 +2,12 @@ import { useEffect, useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useSigner } from 'wagmi';
 import { useVoting } from '../hooks';
+import { useVotingGetters } from '../hooks/useVotingGetters';
+import { useConnectedWallet } from '../hooks';
 
 function NavBar () {
-  const [userAddress, setUserAddress] = useState("");
-  const [userStatus, setUserStatus] = useState("");
-
-  const {data: signer} = useSigner();
-  const { voting } = useVoting();
-  
-
-  useEffect(() => {
-    //@ts-ignore
-    setUserAddress(signer?._address);
-  }, [signer]);
-
-  useEffect(() => {
-    if (userAddress) {
-      getUserStatus();
-    }
-  }, [userAddress]);
-
-  const getUserStatus = async () => {
-    const ownerAddr = await voting?.owner.call();
-    if (ownerAddr === userAddress) {
-      setUserStatus("owner");
-      return;
-    }
-
-    try {
-      const userData = await voting?.getVoter(userAddress);
-      if (userData.isRegistered) {
-        setUserStatus("voter");
-        return;
-      }
-    } catch {
-      setUserStatus("guest");
-    }
-    setUserStatus("guest");
-  };
+  const { userStatus } = useVotingGetters();
+  const { userAddress } = useConnectedWallet();
 
   const statusTranslation = () => {
     if (userStatus === "owner") { return "Propriétaire" }
