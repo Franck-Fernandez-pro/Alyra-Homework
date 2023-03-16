@@ -3,7 +3,7 @@ import App from './App';
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
 import { hardhat } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { getDefaultWallets, RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit';
 import './index.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
@@ -22,7 +22,9 @@ const wagmiClient = createClient({
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <WagmiConfig client={wagmiClient}>
-    <RainbowKitProvider chains={chains}>
+    <RainbowKitProvider chains={chains} theme={lightTheme({
+      accentColor: '#7b3fe4',
+    })}>
       <App />
     </RainbowKitProvider>
   </WagmiConfig>
