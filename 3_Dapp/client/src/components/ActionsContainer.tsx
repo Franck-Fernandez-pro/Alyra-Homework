@@ -33,13 +33,13 @@ function ActionsContainer() {
              { userStatus === "owner" || userStatus === "voter" ?
                 <>
                   {currentWorkflow === 0 &&
-                    <div className="text-white">interface wf 0</div>
+                    <BlockWorkflow1 />
                   }
                   {currentWorkflow === 1 &&
                     <div className="text-white">interface wf 1</div>
                   }
                   {currentWorkflow === 2 &&
-                    <BlockWorkflow1 />
+                    <div className="text-white">interface wf 2</div>
                   }
                   {currentWorkflow === 3 &&
                     <div className="text-white">interface wf 3</div>
