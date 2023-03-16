@@ -1,8 +1,8 @@
 function WorkflowStatus({ status, label }: { status: string; label: string }) {
   const getStatusStyle = () => {
-    if (status === 'done') return 'bg-success';
-    if (status === 'current') return 'bg-info';
-    return 'bg-neutral';
+    if (status === 'done') return 'badge-success';
+    if (status === 'current') return 'badge-info';
+    return '';
   };
 
   const getStatusText = () => {
@@ -14,10 +14,8 @@ function WorkflowStatus({ status, label }: { status: string; label: string }) {
   return (
     <div className="flex w-full">
       <p className="text-end w-full pr-5">{label}</p>
-      <div className="flex w-full items-start pl-5">
-        <div className={`rounded-full px-2 text-white ${getStatusStyle()}`}>
-          {getStatusText()}
-        </div>
+      <div className={`badge w-32 text-white gap-2 ${getStatusStyle()}`}>
+        {getStatusText()}
       </div>
     </div>
   );

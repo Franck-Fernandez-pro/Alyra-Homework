@@ -11,7 +11,7 @@ function Workflow() {
   };
 
   return (
-    <div className="border">
+    <div className="flex flex-col gap-5 w-full">
       <WorkflowStatus
         status={getStatus(0)}
         label="Enregistrement des élécteurs"
