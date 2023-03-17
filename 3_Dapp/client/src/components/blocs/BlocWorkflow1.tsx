@@ -14,6 +14,7 @@ function BlockWorkflow1 () {
   const handleClickAdd = () => {
     console.log('SEND ', inputAddress);
     addVoterToContract(inputAddress);
+    setInputAddress("");
   };
 
   return (
