@@ -1,7 +1,7 @@
 function WorkflowStatus({ status, label }: { status: string; label: string }) {
   const getStatusStyle = () => {
-    if (status === 'done') return 'badge-success';
-    if (status === 'current') return 'badge-info';
+    if (status === 'done') return 'badge-primary';
+    if (status === 'current') return 'badge-secondary';
     return '';
   };
 
