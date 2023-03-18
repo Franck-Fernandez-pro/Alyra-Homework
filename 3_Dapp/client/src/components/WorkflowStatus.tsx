@@ -12,8 +12,8 @@ function WorkflowStatus({ status, label }: { status: string; label: string }) {
   };
 
   return (
-    <div className="flex w-full">
-      <p className="text-end w-full pr-5">{label}</p>
+    <div className="flex w-3/4">
+      <p className="text-start w-full pr-5">{label}</p>
       <div className={`badge w-32 text-white gap-2 ${getStatusStyle()}`}>
         {getStatusText()}
       </div>
