@@ -1,17 +1,17 @@
-import WorkflowStatus from './WorkflowStatus';
-import { useVoting } from '../hooks';
+import WorkflowStatus from "./WorkflowStatus";
+import { useVoting } from "../hooks";
 
 function Workflow() {
   const { currentWorkflow } = useVoting();
 
   const getStatus = (workflow: number) => {
-    if (currentWorkflow === workflow) return 'current';
-    if (currentWorkflow > workflow) return 'done';
-    return 'pending';
+    if (currentWorkflow === workflow) return "current";
+    if (currentWorkflow > workflow) return "done";
+    return "pending";
   };
 
   return (
-    <div className="flex flex-col items-end gap-5 w-full">
+    <div className="flex w-full flex-col items-end gap-5">
       <WorkflowStatus
         status={getStatus(0)}
         label="Enregistrement des élécteurs"

@@ -15,11 +15,11 @@ export function useVoting() {
 
   // @ts-ignore
   const userAddress = signerData?._address;
-  
+
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
-    eventName: 'WorkflowStatusChange',
+    eventName: "WorkflowStatusChange",
     listener(_, __, owner) {
       //@ts-ignore
       owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
@@ -29,10 +29,10 @@ export function useVoting() {
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
-    eventName: 'VoterRegistered',
+    eventName: "VoterRegistered",
     listener(_, label, __) {
       //@ts-ignore
-      const newVoter = label?.args?.voterAddress
+      const newVoter = label?.args?.voterAddress;
       if (!votersAddress.find((elem) => elem == newVoter)) {
         setLastAddedVoter(newVoter);
       }
@@ -44,18 +44,22 @@ export function useVoting() {
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
     signerOrProvider: signerData,
-  })
+  });
 
   useEffect(() => {
     (async function () {
-        let voterRegisteredFilter = voting?.filters.VoterRegistered();
+      let voterRegisteredFilter = voting?.filters.VoterRegistered();
+      let voterRegisteredEvents = await voting?.queryFilter(
         //@ts-ignore
-        let voterRegisteredEvents = await voting?.queryFilter(voterRegisteredFilter);
-        const votersAddressMap = voterRegisteredEvents?.map((elem) => elem?.args?.voterAddress)
-        //@ts-ignore
-        setVotersAddress(votersAddressMap);
+        voterRegisteredFilter
+      );
+      const votersAddressMap = voterRegisteredEvents?.map(
+        (elem) => elem?.args?.voterAddress
+      );
+      //@ts-ignore
+      setVotersAddress(votersAddressMap);
     })();
-  }, [signerData])
+  }, [signerData]);
 
   const getUserStatus = async () => {
     const ownerAddr = await voting?.owner.call();
@@ -133,6 +137,10 @@ export function useVoting() {
     getUserStatus();
   }, [votersAddress, lastAddedVoter]);
 
+<<<<<<< HEAD
 
   return { currentWorkflow, voting, votersAddress, userStatus, lastAddedVoter, nextStep };
+=======
+  return { currentWorkflow, voting, votersAddress, userStatus };
+>>>>>>> 13c94c9d88f184932efebef225763f1778db41a9
 }

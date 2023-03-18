@@ -1,10 +1,10 @@
-import { useVoting } from '../hooks';
+import { useVoting } from "../hooks";
 
 function Results() {
   const { currentWorkflow } = useVoting();
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="flex w-full justify-center">
       <div>results</div>
     </div>
   );
