@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useSigner } from 'wagmi';
 import { useVoting } from '../hooks';
-import { useVotingGetters } from '../hooks/useVotingGetters';
 import { useConnectedWallet } from '../hooks';
 
 function NavBar () {
-  const { userStatus } = useVotingGetters();
+  const { userStatus } = useVoting();
   const { userAddress } = useConnectedWallet();
 
   const statusTranslation = () => {

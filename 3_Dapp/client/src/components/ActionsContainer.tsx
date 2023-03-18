@@ -1,10 +1,9 @@
-import { useConnectedWallet, useVoting, useVotingGetters } from '../hooks';
+import { useConnectedWallet, useVoting } from '../hooks';
 import BlockWorkflow1 from './blocs/BlocWorkflow1';
 
 function ActionsContainer() {
-  const { currentWorkflow } = useVoting();
+  const { currentWorkflow, userStatus } = useVoting();
   const { userAddress } = useConnectedWallet();
-  const { userStatus } = useVotingGetters();
 
   const getWorkflowTitle = () => {
     switch(currentWorkflow) {

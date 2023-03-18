@@ -1,10 +1,10 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { useAddVoter, useVotingGetters } from '../../hooks';
+import { useAddVoter, useConnectedWallet, useVoting } from '../../hooks';
 
 function BlockWorkflow1 () {
   const [inputAddress, setInputAddress] = useState<string>("");
 
-  const { userStatus } = useVotingGetters();
+  const { userStatus } = useVoting();
   const { addVoterToContract } = useAddVoter();
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
