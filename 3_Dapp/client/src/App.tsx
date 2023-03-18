@@ -1,19 +1,16 @@
-import Workflow from './components/Workflow';
-import NavBar from './components/NavBar';
-import ActionsContainer from './components/ActionsContainer';
-import Results from './components/Results';
-import OwnerInterface from './components/OwnerInterface';
-import { ToastContainer } from 'react-toastify';
+import Workflow from "./components/Workflow";
+import NavBar from "./components/NavBar";
+import ActionsContainer from "./components/ActionsContainer";
+import Results from "./components/Results";
+import OwnerInterface from "./components/OwnerInterface";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <div>
-      <ToastContainer
-        position="bottom-center"
-        hideProgressBar
-      />
+      <ToastContainer position="bottom-center" hideProgressBar />
       <NavBar />
-      <div className="flex gap-9 mt-20">
+      <div className="mt-20 flex gap-9">
         <Workflow />
         <ActionsContainer />
       </div>

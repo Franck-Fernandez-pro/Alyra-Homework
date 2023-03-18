@@ -1,4 +1,4 @@
-import { useSigner } from 'wagmi'
+import { useSigner } from "wagmi";
 
 export function useConnectedWallet() {
   const { data: signer } = useSigner();

@@ -1,3 +1,3 @@
-export * from './useVoting';
-export * from './useConnectedWallet';
-export * from './useAddVoter';
+export * from "./useVoting";
+export * from "./useConnectedWallet";
+export * from "./useAddVoter";
