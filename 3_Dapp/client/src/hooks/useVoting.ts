@@ -94,5 +94,15 @@ export function useVoting() {
     setUserStatus('guest');
   };
 
-  return { currentWorkflow, voting, voters, userStatus };
+  async function addVoter(addr: string) {
+    try {
+      const response = await voting?.addVoter(addr);
+
+      return response;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  return { currentWorkflow, voting, voters, userStatus, addVoter };
 }
