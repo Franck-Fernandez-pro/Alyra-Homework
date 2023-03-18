@@ -137,10 +137,6 @@ export function useVoting() {
     getUserStatus();
   }, [votersAddress, lastAddedVoter]);
 
-<<<<<<< HEAD
 
   return { currentWorkflow, voting, votersAddress, userStatus, lastAddedVoter, nextStep };
-=======
-  return { currentWorkflow, voting, votersAddress, userStatus };
->>>>>>> 13c94c9d88f184932efebef225763f1778db41a9
 }
