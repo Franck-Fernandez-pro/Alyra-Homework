@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useContractEvent } from 'wagmi';
 import { useContract, useSigner } from 'wagmi'
 import artifact from '../contracts/Voting.json';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function useVoting() {
   const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
@@ -9,6 +11,7 @@ export function useVoting() {
   const [lastAddedVoter, setLastAddedVoter] = useState<string>("");
   const [userStatus, setUserStatus] = useState<string>("");
   const { data: signerData } = useSigner();
+
 
   // @ts-ignore
   const userAddress = signerData?._address;
@@ -74,10 +77,62 @@ export function useVoting() {
     setUserStatus("guest");
   };
 
+  const nextStep = async () => {
+    switch(currentWorkflow) {
+      case 0:
+        try {
+          const response = await voting?.startProposalsRegistering();
+          toast.success("Etape suivante");
+          return response;
+        } catch (err) {
+          console.error("-> ", err);
+          toast.error("Erreur du smart contract");
+        }
+      case 1:
+        try {
+          const response = await voting?.endProposalsRegistering();
+          toast.success("Etape suivante");
+          return response;
+        } catch (err) {
+          console.error("-> ", err);
+          toast.error("Erreur du smart contract");
+        }
+      case 2:
+        try {
+          const response = await voting?.startVotingSession();
+          toast.success("Etape suivante");
+          return response;
+        } catch (err) {
+          console.error("-> ", err);
+          toast.error("Erreur du smart contract");
+        }
+      case 3:
+        try {
+          const response = await voting?.endVotingSession();
+          toast.success("Etape suivante");
+          return response;
+        } catch (err) {
+          console.error("-> ", err);
+          toast.error("Erreur du smart contract");
+        }
+      case 4:
+        try {
+          const response = await voting?.tallyVotes();
+          toast.success("Etape suivante");
+          return response;
+        } catch (err) {
+          console.error("-> ", err);
+          toast.error("Erreur du smart contract");
+        }
+      case 5:
+        toast.info("Session de vote terminée");
+    }
+  };
+
   useEffect(() => {
     getUserStatus();
   }, [votersAddress, lastAddedVoter]);
 
 
-  return { currentWorkflow, voting, votersAddress, userStatus };
+  return { currentWorkflow, voting, votersAddress, userStatus, lastAddedVoter, nextStep };
 }
