@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import { useContractEvent } from "wagmi";
+import { useAccount, useContractEvent } from "wagmi";
 import { useContract, useSigner } from "wagmi";
 import artifact from "../contracts/Voting.json";
 
 export function useVoting() {
+  const { address } = useAccount()
   const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
   const [votersAddress, setVotersAddress] = useState<string[]>([]);
   const [lastAddedVoter, setLastAddedVoter] = useState<string>("");
   const [userStatus, setUserStatus] = useState<string>("");
   const { data: signerData } = useSigner();
-
-  // @ts-ignore
-  const userAddress = signerData?._address;
+  
+  // EVENTS
+  const [proposals, setProposals] = useState<string[]>([]);
 
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
@@ -61,16 +62,16 @@ export function useVoting() {
   const getUserStatus = async () => {
     const ownerAddr = await voting?.owner.call();
 
-    if (ownerAddr === userAddress) {
+    if (ownerAddr === address) {
       setUserStatus("owner");
       return;
     }
 
-    if (lastAddedVoter === userAddress) {
+    if (lastAddedVoter === address) {
       setUserStatus("voter");
       return;
     }
-    if (votersAddress.find((elem) => elem == userAddress)) {
+    if (votersAddress.find((elem) => elem == address)) {
       setUserStatus("voter");
       return;
     }
