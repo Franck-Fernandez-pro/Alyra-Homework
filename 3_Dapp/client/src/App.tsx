@@ -2,7 +2,7 @@ import Workflow from './components/Workflow';
 import NavBar from './components/NavBar';
 import ActionsContainer from './components/ActionsContainer';
 import Results from './components/Results';
-import OwnerInterface from './components/OwnerInterface';
+import UtilsInterface from './components/UtilsInterface';
 import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
         <ActionsContainer />
       </div>
       <div className="mt-20">
-        <OwnerInterface />
+        <UtilsInterface />
       </div>
       <div className="mt-20">
         <Results />
