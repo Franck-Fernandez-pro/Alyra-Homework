@@ -1,25 +1,35 @@
-import { ChangeEvent, useEffect, useState } from "react";
-import { useAddVoter, useConnectedWallet, useVoting } from "../../hooks";
+import { ChangeEvent, useState } from 'react';
+import { useVoting } from '../../hooks';
+import { toast } from 'react-toastify';
+import { isAddress } from 'ethers/lib/utils.js';
 
 function BlockWorkflow1() {
-  const [inputAddress, setInputAddress] = useState<string>("");
+  const [inputAddress, setInputAddress] = useState<string>('');
 
-  const { userStatus } = useVoting();
-  const { addVoterToContract } = useAddVoter();
+  const { userStatus, addVoter } = useVoting();
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputAddress(e.currentTarget.value);
   };
 
-  const handleClickAdd = () => {
-    console.log("SEND ", inputAddress);
-    addVoterToContract(inputAddress);
-    setInputAddress("");
+  const handleClickAdd = async () => {
+    if (isAddress(inputAddress)) {
+      try {
+        await addVoter(inputAddress);
+        toast.success('Élécteur ajouté');
+      } catch (err) {
+        toast.error('Erreur du smart contract');
+      }
+    } else {
+      toast.error("Ce n'est pas une adresse");
+    }
+
+    setInputAddress('');
   };
 
   return (
     <>
-      {userStatus === "owner" && (
+      {userStatus === 'owner' && (
         <div className="flex flex-col items-center justify-center gap-2">
           <input
             className="input input-bordered w-full max-w-xs"
@@ -33,7 +43,7 @@ function BlockWorkflow1() {
           </button>
         </div>
       )}
-      {userStatus === "voter" && (
+      {userStatus === 'voter' && (
         <div className="alert alert-success shadow-lg">
           <svg
             xmlns="http://www.w3.org/2000/svg"

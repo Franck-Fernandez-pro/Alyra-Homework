@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
-import { useContractEvent } from 'wagmi';
-import { useContract, useSigner } from 'wagmi'
+import { useAccount, useContractEvent } from 'wagmi';
+import { useContract, useSigner } from 'wagmi';
 import artifact from '../contracts/Voting.json';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 export function useVoting() {
-  const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
-  const [votersAddress, setVotersAddress] = useState<string[]>([]);
-  const [lastAddedVoter, setLastAddedVoter] = useState<string>("");
-  const [userStatus, setUserStatus] = useState<string>("");
+  const { address } = useAccount();
+  const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
+  const [userStatus, setUserStatus] = useState<string>('');
   const { data: signerData } = useSigner();
 
-
-  // @ts-ignore
-  const userAddress = signerData?._address;
+  // EVENTS
+  // This data are build from contract events
+  const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
+  const [voters, setVoters] = useState<string[]>([]);
+  const [proposals, setProposals] = useState<string[]>([]);
 
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
-    eventName: "WorkflowStatusChange",
+    eventName: 'WorkflowStatusChange',
     listener(_, __, owner) {
       //@ts-ignore
       owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
@@ -29,11 +29,11 @@ export function useVoting() {
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
-    eventName: "VoterRegistered",
+    eventName: 'VoterRegistered',
     listener(_, label, __) {
       //@ts-ignore
       const newVoter = label?.args?.voterAddress;
-      if (!votersAddress.find((elem) => elem == newVoter)) {
+      if (!voters.find((voter) => voter == newVoter)) {
         setLastAddedVoter(newVoter);
       }
     },
@@ -46,97 +46,148 @@ export function useVoting() {
     signerOrProvider: signerData,
   });
 
+  // -------------------------------------------------------------------- EFFECTS
+  //- ADD COMMENT
   useEffect(() => {
-    (async function () {
-      let voterRegisteredFilter = voting?.filters.VoterRegistered();
-      let voterRegisteredEvents = await voting?.queryFilter(
+    getUserStatus();
+  }, [voters, lastAddedVoter]);
+
+  // SETUP CONTRACT'S EVENT LISTENER
+  useEffect(() => {
+    useContractEvent({
+      address: import.meta.env.VITE_VOTING_ADDR,
+      abi: artifact.abi,
+      eventName: 'WorkflowStatusChange',
+      listener(_, __, owner) {
         //@ts-ignore
-        voterRegisteredFilter
-      );
-      const votersAddressMap = voterRegisteredEvents?.map(
-        (elem) => elem?.args?.voterAddress
-      );
-      //@ts-ignore
-      setVotersAddress(votersAddressMap);
-    })();
+        owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
+      },
+    });
+
+    useContractEvent({
+      address: import.meta.env.VITE_VOTING_ADDR,
+      abi: artifact.abi,
+      eventName: 'VoterRegistered',
+      listener(_, label, __) {
+        //@ts-ignore
+        const newVoter = label?.args?.voterAddress;
+        if (!voters.find((elem) => elem == newVoter)) {
+          setLastAddedVoter(newVoter);
+        }
+      },
+      once: true,
+    });
+  }, []);
+
+  // FETCH CONTRACT EVENTS
+  useEffect(() => {
+    fetchVoters();
   }, [signerData]);
+
+  // -------------------------------------------------------------------- FUNCTIONS
+  async function fetchVoters() {
+    const voterRegisteredFilter = voting?.filters.VoterRegistered();
+    if (!voterRegisteredFilter) return;
+
+    const voterRegisteredEvents = await voting?.queryFilter(
+      voterRegisteredFilter
+    );
+    const fetchedVoters = voterRegisteredEvents?.map(
+      (voter) => voter?.args?.voterAddress
+    ) as string[];
+
+    setVoters(fetchedVoters);
+  }
 
   const getUserStatus = async () => {
     const ownerAddr = await voting?.owner.call();
 
-    if (ownerAddr === userAddress) {
-      setUserStatus("owner");
+    if (ownerAddr === address) {
+      setUserStatus('owner');
       return;
     }
 
-    if (lastAddedVoter === userAddress) {
-      setUserStatus("voter");
+    if (lastAddedVoter === address) {
+      setUserStatus('voter');
       return;
     }
-    if (votersAddress.find((elem) => elem == userAddress)) {
-      setUserStatus("voter");
+    if (voters.find((voter) => voter == address)) {
+      setUserStatus('voter');
       return;
     }
 
-    setUserStatus("guest");
+    setUserStatus('guest');
   };
 
+  async function addVoter(addr: string) {
+    try {
+      const response = await voting?.addVoter(addr);
+
+      return response;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   const nextStep = async () => {
-    switch(currentWorkflow) {
+    switch (currentWorkflow) {
       case 0:
         try {
           const response = await voting?.startProposalsRegistering();
-          toast.success("Etape suivante");
+          toast.success('Etape suivante');
           return response;
         } catch (err) {
-          console.error("-> ", err);
-          toast.error("Erreur du smart contract");
+          console.error('-> ', err);
+          toast.error('Erreur du smart contract');
         }
       case 1:
         try {
           const response = await voting?.endProposalsRegistering();
-          toast.success("Etape suivante");
+          toast.success('Etape suivante');
           return response;
         } catch (err) {
-          console.error("-> ", err);
-          toast.error("Erreur du smart contract");
+          console.error('-> ', err);
+          toast.error('Erreur du smart contract');
         }
       case 2:
         try {
           const response = await voting?.startVotingSession();
-          toast.success("Etape suivante");
+          toast.success('Etape suivante');
           return response;
         } catch (err) {
-          console.error("-> ", err);
-          toast.error("Erreur du smart contract");
+          console.error('-> ', err);
+          toast.error('Erreur du smart contract');
         }
       case 3:
         try {
           const response = await voting?.endVotingSession();
-          toast.success("Etape suivante");
+          toast.success('Etape suivante');
           return response;
         } catch (err) {
-          console.error("-> ", err);
-          toast.error("Erreur du smart contract");
+          console.error('-> ', err);
+          toast.error('Erreur du smart contract');
         }
       case 4:
         try {
           const response = await voting?.tallyVotes();
-          toast.success("Etape suivante");
+          toast.success('Etape suivante');
           return response;
         } catch (err) {
-          console.error("-> ", err);
-          toast.error("Erreur du smart contract");
+          console.error('-> ', err);
+          toast.error('Erreur du smart contract');
         }
       case 5:
-        toast.info("Session de vote terminée");
+        toast.info('Session de vote terminée');
     }
   };
 
-  useEffect(() => {
-    getUserStatus();
-  }, [votersAddress, lastAddedVoter]);
-
-
-  return { currentWorkflow, voting, votersAddress, userStatus, lastAddedVoter, nextStep };
+  return {
+    currentWorkflow,
+    voting,
+    voters,
+    userStatus,
+    addVoter,
+    lastAddedVoter,
+    nextStep,
+  };
 }
