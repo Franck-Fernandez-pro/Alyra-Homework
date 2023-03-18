@@ -1,21 +1,15 @@
-import { ChangeEvent, useState } from 'react';
-import { useVoting } from '../../hooks';
+import { useInput, useVoting } from '../../hooks';
 import { toast } from 'react-toastify';
 import { isAddress } from 'ethers/lib/utils.js';
 
 function BlockWorkflow1() {
-  const [inputAddress, setInputAddress] = useState<string>('');
-
+  const { props: addressField, setValue } = useInput<string>('');
   const { userStatus, addVoter } = useVoting();
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setInputAddress(e.currentTarget.value);
-  };
-
   const handleClickAdd = async () => {
-    if (isAddress(inputAddress)) {
+    if (isAddress(addressField.value)) {
       try {
-        await addVoter(inputAddress);
+        await addVoter(addressField.value);
         toast.success('Élécteur ajouté');
       } catch (err) {
         toast.error('Erreur du smart contract');
@@ -24,7 +18,7 @@ function BlockWorkflow1() {
       toast.error("Ce n'est pas une adresse");
     }
 
-    setInputAddress('');
+    setValue('');
   };
 
   return (
@@ -34,9 +28,8 @@ function BlockWorkflow1() {
           <input
             className="input input-bordered w-full max-w-xs"
             type="text"
-            value={inputAddress}
-            onChange={handleInputChange}
             placeholder="Adresse du futur élécteur (0x00...)"
+            {...addressField}
           />
           <button className="btn btn-primary" onClick={handleClickAdd}>
             ajouter
