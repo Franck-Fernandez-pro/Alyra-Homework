@@ -1,42 +1,19 @@
-import { useEffect, useState } from "react";
-import { useAccount, useContractEvent } from "wagmi";
-import { useContract, useSigner } from "wagmi";
-import artifact from "../contracts/Voting.json";
+import { useEffect, useState } from 'react';
+import { useAccount, useContractEvent } from 'wagmi';
+import { useContract, useSigner } from 'wagmi';
+import artifact from '../contracts/Voting.json';
 
 export function useVoting() {
-  const { address } = useAccount()
-  const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
-  const [votersAddress, setVotersAddress] = useState<string[]>([]);
-  const [lastAddedVoter, setLastAddedVoter] = useState<string>("");
-  const [userStatus, setUserStatus] = useState<string>("");
+  const { address } = useAccount();
+  const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
+  const [userStatus, setUserStatus] = useState<string>('');
   const { data: signerData } = useSigner();
-  
+
   // EVENTS
+  // This data are build from contract events
+  const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
+  const [voters, setVoters] = useState<string[]>([]);
   const [proposals, setProposals] = useState<string[]>([]);
-
-  useContractEvent({
-    address: import.meta.env.VITE_VOTING_ADDR,
-    abi: artifact.abi,
-    eventName: "WorkflowStatusChange",
-    listener(_, __, owner) {
-      //@ts-ignore
-      owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
-    },
-  });
-
-  useContractEvent({
-    address: import.meta.env.VITE_VOTING_ADDR,
-    abi: artifact.abi,
-    eventName: "VoterRegistered",
-    listener(_, label, __) {
-      //@ts-ignore
-      const newVoter = label?.args?.voterAddress;
-      if (!votersAddress.find((elem) => elem == newVoter)) {
-        setLastAddedVoter(newVoter);
-      }
-    },
-    once: true,
-  });
 
   const voting = useContract({
     address: import.meta.env.VITE_VOTING_ADDR,
@@ -44,44 +21,78 @@ export function useVoting() {
     signerOrProvider: signerData,
   });
 
+  // -------------------------------------------------------------------- EFFECTS
+  //- ADD COMMENT
   useEffect(() => {
-    (async function () {
-      let voterRegisteredFilter = voting?.filters.VoterRegistered();
-      let voterRegisteredEvents = await voting?.queryFilter(
+    getUserStatus();
+  }, [voters, lastAddedVoter]);
+
+  // SETUP CONTRACT'S EVENT LISTENER
+  useEffect(() => {
+    useContractEvent({
+      address: import.meta.env.VITE_VOTING_ADDR,
+      abi: artifact.abi,
+      eventName: 'WorkflowStatusChange',
+      listener(_, __, owner) {
         //@ts-ignore
-        voterRegisteredFilter
-      );
-      const votersAddressMap = voterRegisteredEvents?.map(
-        (elem) => elem?.args?.voterAddress
-      );
-      //@ts-ignore
-      setVotersAddress(votersAddressMap);
-    })();
+        owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
+      },
+    });
+
+    useContractEvent({
+      address: import.meta.env.VITE_VOTING_ADDR,
+      abi: artifact.abi,
+      eventName: 'VoterRegistered',
+      listener(_, label, __) {
+        //@ts-ignore
+        const newVoter = label?.args?.voterAddress;
+        if (!voters.find((elem) => elem == newVoter)) {
+          setLastAddedVoter(newVoter);
+        }
+      },
+      once: true,
+    });
+  }, []);
+
+  // FETCH CONTRACT EVENTS
+  useEffect(() => {
+    fetchVoters();
   }, [signerData]);
+
+  // -------------------------------------------------------------------- FUNCTIONS
+  async function fetchVoters() {
+    const voterRegisteredFilter = voting?.filters.VoterRegistered();
+    if (!voterRegisteredFilter) return;
+
+    const voterRegisteredEvents = await voting?.queryFilter(
+      voterRegisteredFilter
+    );
+    const fetchedVoters = voterRegisteredEvents?.map(
+      (voter) => voter?.args?.voterAddress
+    ) as string[];
+
+    setVoters(fetchedVoters);
+  }
 
   const getUserStatus = async () => {
     const ownerAddr = await voting?.owner.call();
 
     if (ownerAddr === address) {
-      setUserStatus("owner");
+      setUserStatus('owner');
       return;
     }
 
     if (lastAddedVoter === address) {
-      setUserStatus("voter");
+      setUserStatus('voter');
       return;
     }
-    if (votersAddress.find((elem) => elem == address)) {
-      setUserStatus("voter");
+    if (voters.find((voter) => voter == address)) {
+      setUserStatus('voter');
       return;
     }
 
-    setUserStatus("guest");
+    setUserStatus('guest');
   };
 
-  useEffect(() => {
-    getUserStatus();
-  }, [votersAddress, lastAddedVoter]);
-
-  return { currentWorkflow, voting, votersAddress, userStatus };
+  return { currentWorkflow, voting, voters, userStatus };
 }
