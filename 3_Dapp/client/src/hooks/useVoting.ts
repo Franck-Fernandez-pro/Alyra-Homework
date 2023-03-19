@@ -16,8 +16,11 @@ export function useVoting() {
   // This data are build from contract events
   const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
   const [voters, setVoters] = useState<string[]>([]);
-  const [proposals, setProposals] = useState<string[]>([]);
+  const [proposals, setProposals] = useState<number[]>([1, 2, 3]);
 
+  useEffect(() => {
+    // console.log('proposals:', proposals);
+  }, [proposals]);
   const { data: votingOwner } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
@@ -48,6 +51,21 @@ export function useVoting() {
     },
   });
 
+  // useContractEvent({
+  //   address: import.meta.env.VITE_VOTING_ADDR,
+  //   abi: artifact.abi,
+  //   eventName: 'ProposalRegistered',
+  //   listener(a) {
+  //     //@ts-ignore
+  //     console.log('a:', a?._hex.toNumber());
+  //     //@ts-ignore
+  //     // const newVoter = label?.args?.voterAddress;
+  //     // if (!voters.find((voter) => voter == newVoter)) {
+  //     //   setLastAddedVoter(newVoter);
+  //     // }
+  //   },
+  // });
+
   const voting = useContract({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
@@ -63,6 +81,7 @@ export function useVoting() {
   // FETCH CONTRACT EVENTS
   useEffect(() => {
     isConnected && fetchVoters();
+    isConnected && fetchProposals();
   }, [address]);
 
   // -------------------------------------------------------------------- FUNCTIONS
@@ -83,6 +102,29 @@ export function useVoting() {
 
     setVoters(fetchedVoters);
   }
+
+  async function fetchProposals() {
+    // if (!voting) return;
+
+    // const proposalRegisteredFilter = voting.filters.ProposalRegistered();
+    // console.log('proposalRegisteredFilter:', proposalRegisteredFilter);
+    // if (!proposalRegisteredFilter) return;
+
+    // const proposalRegisteredEvents = await voting.queryFilter(
+    //   proposalRegisteredFilter
+    // );
+    // console.log('proposalRegisteredEvents:', proposalRegisteredEvents);
+    // if (!proposalRegisteredEvents) return;
+
+    // const fetchedProposals = proposalRegisteredEvents.map(
+    //   (proposal) => proposal?.args?.voterAddress
+    // ) as string[];
+    // console.log('fetchedProposals:', fetchedProposals);
+
+    // setProposals(fetchedProposals);
+  }
+
+  async function setVote(proposalId: number) {}
 
   const getUserStatus = async () => {
     if (!voting || !votingOwner) return;
@@ -186,5 +228,7 @@ export function useVoting() {
     addProposal,
     lastAddedVoter,
     nextStep,
+    proposals,
+    setVote,
   };
 }
