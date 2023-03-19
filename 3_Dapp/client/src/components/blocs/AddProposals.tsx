@@ -20,7 +20,7 @@ export default function AddProposals({}: {}) {
 
   return (
     <Card
-      title="Ajouter une proposaition"
+      title="Ajouter une proposition"
       onClick={handleAddProposal}
       btnDisabled={proposalField.value === ''}
     >

@@ -1,8 +1,9 @@
 import { useInput, useVoting } from '../../hooks';
 import { toast } from 'react-toastify';
 import { isAddress } from 'ethers/lib/utils.js';
+import Card from '../Card';
 
-function BlockWorkflow1() {
+function AddVoter() {
   const { props: addressField, setValue } = useInput<string>('');
   const { userStatus, addVoter } = useVoting();
 
@@ -22,19 +23,14 @@ function BlockWorkflow1() {
   };
 
   return (
-    <>
+    <Card title="✏️ Ajouter des voteurs" onClick={handleClickAdd}>
       {userStatus === 'owner' && (
-        <div className="flex flex-col items-center justify-center gap-2">
-          <input
-            className="input input-bordered w-full max-w-xs"
-            type="text"
-            placeholder="Adresse du futur élécteur (0x00...)"
-            {...addressField}
-          />
-          <button className="btn btn-primary" onClick={handleClickAdd}>
-            ajouter
-          </button>
-        </div>
+        <input
+          className="input input-bordered input-sm w-full max-w-xs"
+          type="text"
+          placeholder="0xf0535..."
+          {...addressField}
+        />
       )}
       {userStatus === 'voter' && (
         <div className="alert alert-success shadow-lg">
@@ -57,8 +53,8 @@ function BlockWorkflow1() {
           </span>
         </div>
       )}
-    </>
+    </Card>
   );
 }
 
-export default BlockWorkflow1;
+export default AddVoter;
