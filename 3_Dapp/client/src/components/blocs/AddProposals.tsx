@@ -4,7 +4,7 @@ import Card from '../Card';
 
 export default function AddProposals({}: {}) {
   const { props: proposalField, setValue } = useInput<string>('');
-  const { userStatus, addProposal } = useVoting();
+  const { addProposal } = useVoting();
 
   async function handleAddProposal() {
     if (proposalField.value !== '') {
@@ -18,7 +18,7 @@ export default function AddProposals({}: {}) {
     }
   }
 
-  return userStatus === 'owner' || userStatus === 'voter' ? (
+  return (
     <Card
       title="Ajouter une proposaition"
       onClick={handleAddProposal}
@@ -31,7 +31,5 @@ export default function AddProposals({}: {}) {
         {...proposalField}
       />
     </Card>
-  ) : (
-    <>'PAS OK'</>
   );
 }
