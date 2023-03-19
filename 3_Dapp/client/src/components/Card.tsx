@@ -4,7 +4,7 @@ const Card = ({
   title = '',
   children,
   onClick,
-  btnDisabled = true,
+  btnDisabled = false,
 }: {
   title: string;
   children: ReactNode;
