@@ -35,6 +35,7 @@ export default function Vote({}: {}) {
       title="Votez"
       onClick={handleVote}
       btnDisabled={selectedProposal === null}
+      btnText="Voter"
     >
       <div className="flex space-x-1">
         {proposals &&

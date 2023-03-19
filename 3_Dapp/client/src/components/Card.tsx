@@ -5,11 +5,13 @@ const Card = ({
   children,
   onClick,
   btnDisabled = false,
+  btnText = 'Ajouter',
 }: {
   title: string;
   children: ReactNode;
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
   btnDisabled?: boolean;
+  btnText?: string;
 }) => (
   <div className="card bg-base-100 w-96 shadow-xl">
     <div className="card-body space-y-5">
@@ -23,7 +25,7 @@ const Card = ({
             onClick={onClick}
             disabled={btnDisabled}
           >
-            Ajouter
+            {btnText}
           </button>
         </div>
       )}
