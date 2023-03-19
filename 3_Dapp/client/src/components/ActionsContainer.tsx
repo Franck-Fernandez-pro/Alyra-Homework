@@ -1,28 +1,14 @@
 import { useAccount } from 'wagmi';
 import { useVoting } from '../hooks';
-import BlockWorkflow1 from './blocs/BlocWorkflow1';
 import AddProposals from './blocs/AddProposals';
+import Vote from './blocs/Vote';
+import Result from './blocs/Result';
+import Card from './Card';
+import AddVoter from './blocs/AddVoter';
 
 function ActionsContainer() {
   const { currentWorkflow, userStatus } = useVoting();
   const { isConnected } = useAccount();
-
-  const getWorkflowTitle = () => {
-    switch (currentWorkflow) {
-      case 0:
-        return 'Enregistrez un ou plusieurs élécteurs grâce à leurs adresses (0x00...)';
-      case 1:
-        return 'Enregistrez une proposition de vote';
-      case 2:
-        return "La session d'enregistrement des propositions terminée";
-      case 3:
-        return 'Votez pour une des propositions enregistrées';
-      case 4:
-        return 'La session de vote est terminée';
-      case 5:
-        return 'Processus de vote terminé les résultats sont disponibles';
-    }
-  };
 
   return (
     <div className="w-full">
@@ -32,20 +18,22 @@ function ActionsContainer() {
             <>
               {userStatus === 'owner' || userStatus === 'voter' ? (
                 <>
-                  {currentWorkflow === 0 && <BlockWorkflow1 />}
+                  {currentWorkflow === 0 && <AddVoter />}
                   {currentWorkflow === 1 && <AddProposals />}
                   {currentWorkflow === 2 && (
-                    <div className="text-white">interface wf 2</div>
+                    <Card title="Enregistrement terminé">
+                      L'administrateur passera à la prochaine étape dans
+                      quelques instants
+                    </Card>
                   )}
-                  {currentWorkflow === 3 && (
-                    <div className="text-white">interface wf 3</div>
-                  )}
+                  {currentWorkflow === 3 && <Vote />}
                   {currentWorkflow === 4 && (
-                    <div className="text-white">interface wf 4</div>
+                    <Card title="Vote terminé">
+                      L'administrateur passera à la prochaine étape dans
+                      quelques instants
+                    </Card>
                   )}
-                  {currentWorkflow === 5 && (
-                    <div className="text-white">interface wf 5</div>
-                  )}
+                  {currentWorkflow === 5 && <Result />}
                 </>
               ) : (
                 <div className="alert alert-warning shadow-lg">
