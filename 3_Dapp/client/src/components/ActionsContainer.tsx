@@ -21,14 +21,14 @@ function ActionsContainer() {
                   {currentWorkflow === 0 && <AddVoter />}
                   {currentWorkflow === 1 && <AddProposals />}
                   {currentWorkflow === 2 && (
-                    <Card title="Enregistrement terminé">
+                    <Card title="⏳ Enregistrement terminé">
                       L'administrateur passera à la prochaine étape dans
                       quelques instants
                     </Card>
                   )}
                   {currentWorkflow === 3 && <Vote />}
                   {currentWorkflow === 4 && (
-                    <Card title="Vote terminé">
+                    <Card title="⏳ Vote terminé">
                       L'administrateur passera à la prochaine étape dans
                       quelques instants
                     </Card>
