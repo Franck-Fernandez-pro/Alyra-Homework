@@ -4,30 +4,53 @@ import { useContract, useSigner } from 'wagmi';
 import artifact from '../contracts/Voting.json';
 import { toast } from 'react-toastify';
 
+export interface Voter {
+  hasVoted: boolean;
+  isRegistered: boolean;
+  votedProposalId: VotedProposalID;
+}
+
+export interface VotedProposalID {
+  _type: string;
+  _hex: string;
+}
+
 export function useVoting() {
+  const { data: signerData } = useSigner();
+  const voting = useContract({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    signerOrProvider: signerData,
+  });
   const { address, isConnected } = useAccount();
+  const [voter, setVoter] = useState<Voter | null>(null);
   const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
   const [userStatus, setUserStatus] = useState<'owner' | 'guest' | 'voter'>(
     'guest'
   );
-  const { data: signerData } = useSigner();
 
   // EVENTS
   // This data are build from contract events
   const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
   const [voters, setVoters] = useState<string[]>([]);
+  const userIsVoter: boolean = address ? voters?.includes(address) : false;
   const [proposals, setProposals] = useState<number[]>([1, 2, 3]);
 
-  useEffect(() => {
-    // console.log('proposals:', proposals);
-  }, [proposals]);
   const { data: votingOwner } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
     functionName: 'owner',
   });
 
-  // SETUP CONTRACT'S EVENT LISTENER
+  const { data: connectedVoter } = useContractRead({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    functionName: 'getVoter',
+    args: [address],
+    enabled: userIsVoter,
+  });
+
+  // -------------------------------------------------------------------- SETUP CONTRACT'S EVENT LISTENER
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
@@ -66,17 +89,20 @@ export function useVoting() {
   //   },
   // });
 
-  const voting = useContract({
-    address: import.meta.env.VITE_VOTING_ADDR,
-    abi: artifact.abi,
-    signerOrProvider: signerData,
-  });
-
   // -------------------------------------------------------------------- EFFECTS
-  //- ADD COMMENT
+  // FETCH USER STATUS
   useEffect(() => {
     getUserStatus();
   }, [address]);
+
+  // FETCH CURRENT VOTER
+  useEffect(() => {
+    if (connectedVoter) {
+      const { isRegistered, hasVoted, votedProposalId } =
+        connectedVoter as Voter;
+      setVoter({ isRegistered, hasVoted, votedProposalId });
+    }
+  }, [connectedVoter]);
 
   // FETCH CONTRACT EVENTS
   useEffect(() => {
@@ -105,22 +131,18 @@ export function useVoting() {
 
   async function fetchProposals() {
     // if (!voting) return;
-
     // const proposalRegisteredFilter = voting.filters.ProposalRegistered();
     // console.log('proposalRegisteredFilter:', proposalRegisteredFilter);
     // if (!proposalRegisteredFilter) return;
-
     // const proposalRegisteredEvents = await voting.queryFilter(
     //   proposalRegisteredFilter
     // );
     // console.log('proposalRegisteredEvents:', proposalRegisteredEvents);
     // if (!proposalRegisteredEvents) return;
-
     // const fetchedProposals = proposalRegisteredEvents.map(
     //   (proposal) => proposal?.args?.voterAddress
     // ) as string[];
     // console.log('fetchedProposals:', fetchedProposals);
-
     // setProposals(fetchedProposals);
   }
 
@@ -230,5 +252,6 @@ export function useVoting() {
     nextStep,
     proposals,
     setVote,
+    hasVoted,
   };
 }
