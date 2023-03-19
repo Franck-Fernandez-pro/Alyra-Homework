@@ -245,6 +245,7 @@ export function useVoting() {
     currentWorkflow,
     voting,
     voters,
+    voter,
     userStatus,
     addVoter,
     addProposal,
@@ -252,6 +253,5 @@ export function useVoting() {
     nextStep,
     proposals,
     setVote,
-    hasVoted,
   };
 }
