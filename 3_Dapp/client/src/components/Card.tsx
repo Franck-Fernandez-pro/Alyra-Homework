@@ -8,7 +8,7 @@ const Card = ({
 }: {
   title: string;
   children: ReactNode;
-  onClick: (e: MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
   btnDisabled?: boolean;
 }) => (
   <div className="card bg-base-100 w-96 shadow-xl">
@@ -16,15 +16,17 @@ const Card = ({
       <h2 className="card-title">{title}</h2>
       {children && children}
 
-      <div className="card-actions justify-end">
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={onClick}
-          disabled={btnDisabled}
-        >
-          Ajouter
-        </button>
-      </div>
+      {onClick && (
+        <div className="card-actions justify-end">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={onClick}
+            disabled={btnDisabled}
+          >
+            Ajouter
+          </button>
+        </div>
+      )}
     </div>
   </div>
 );
