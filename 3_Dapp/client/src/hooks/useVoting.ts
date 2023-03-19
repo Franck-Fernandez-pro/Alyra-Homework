@@ -5,7 +5,7 @@ import artifact from '../contracts/Voting.json';
 import { toast } from 'react-toastify';
 
 export function useVoting() {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
   const [userStatus, setUserStatus] = useState<string>('');
   const { data: signerData } = useSigner();
@@ -16,6 +16,7 @@ export function useVoting() {
   const [voters, setVoters] = useState<string[]>([]);
   const [proposals, setProposals] = useState<string[]>([]);
 
+  // SETUP CONTRACT'S EVENT LISTENER
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
@@ -50,56 +51,41 @@ export function useVoting() {
   //- ADD COMMENT
   useEffect(() => {
     getUserStatus();
-  }, [voters, lastAddedVoter]);
-
-  // SETUP CONTRACT'S EVENT LISTENER
-  useEffect(() => {
-    useContractEvent({
-      address: import.meta.env.VITE_VOTING_ADDR,
-      abi: artifact.abi,
-      eventName: 'WorkflowStatusChange',
-      listener(_, __, owner) {
-        //@ts-ignore
-        owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
-      },
-    });
-
-    useContractEvent({
-      address: import.meta.env.VITE_VOTING_ADDR,
-      abi: artifact.abi,
-      eventName: 'VoterRegistered',
-      listener(_, label, __) {
-        //@ts-ignore
-        const newVoter = label?.args?.voterAddress;
-        if (!voters.find((elem) => elem == newVoter)) {
-          setLastAddedVoter(newVoter);
-        }
-      },
-      once: true,
-    });
-  }, []);
+  }, [address]);
 
   // FETCH CONTRACT EVENTS
   useEffect(() => {
-    fetchVoters();
-  }, [signerData]);
+    isConnected && fetchVoters();
+  }, [address]);
 
   // -------------------------------------------------------------------- FUNCTIONS
   async function fetchVoters() {
-    const voterRegisteredFilter = voting?.filters.VoterRegistered();
+    if (!voting) return;
+
+    const voterRegisteredFilter = voting.filters.VoterRegistered();
+    console.log('voterRegisteredFilter:', voterRegisteredFilter);
     if (!voterRegisteredFilter) return;
 
-    const voterRegisteredEvents = await voting?.queryFilter(
+    const voterRegisteredEvents = await voting.queryFilter(
       voterRegisteredFilter
     );
-    const fetchedVoters = voterRegisteredEvents?.map(
+    console.log('voterRegisteredEvents:', voterRegisteredEvents);
+    if (!voterRegisteredEvents) return;
+
+    const fetchedVoters = voterRegisteredEvents.map(
       (voter) => voter?.args?.voterAddress
     ) as string[];
+    console.log('fetchedVoters:', fetchedVoters);
 
     setVoters(fetchedVoters);
   }
 
   const getUserStatus = async () => {
+    if (!isConnected) {
+      setUserStatus('guest');
+      return;
+    }
+
     const ownerAddr = await voting?.owner.call();
 
     if (ownerAddr === address) {
@@ -115,8 +101,6 @@ export function useVoting() {
       setUserStatus('voter');
       return;
     }
-
-    setUserStatus('guest');
   };
 
   async function addVoter(addr: string) {
