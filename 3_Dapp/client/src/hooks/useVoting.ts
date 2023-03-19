@@ -31,7 +31,6 @@ export function useVoting() {
 
   // EVENTS
   // This data are build from contract events
-  const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
   const [voters, setVoters] = useState<string[]>([]);
   const userIsVoter: boolean = address ? voters?.includes(address) : false;
   const [proposals, setProposals] = useState<number[]>([1, 2, 3]);
@@ -50,22 +49,19 @@ export function useVoting() {
     enabled: userIsVoter,
   });
 
+  const { data: currentWorkflow } = useContractRead({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    functionName: 'workflowStatus',
+    watch: true,
+  });
+
   // -------------------------------------------------------------------- SETUP CONTRACT'S EVENT LISTENER
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
-    eventName: 'WorkflowStatusChange',
-    listener(_, __, owner) {
-      //@ts-ignore
-      owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
-    },
-  });
-
-  useContractEvent({
-    address: import.meta.env.VITE_VOTING_ADDR,
-    abi: artifact.abi,
     eventName: 'VoterRegistered',
-    listener(_, label, __) {
+    listener(_, label) {
       //@ts-ignore
       const newVoter = label?.args?.voterAddress;
       if (!voters.find((voter) => voter == newVoter)) {
@@ -108,7 +104,7 @@ export function useVoting() {
   useEffect(() => {
     isConnected && fetchVoters();
     isConnected && fetchProposals();
-  }, [address]);
+  }, []);
 
   // -------------------------------------------------------------------- FUNCTIONS
   async function fetchVoters() {
