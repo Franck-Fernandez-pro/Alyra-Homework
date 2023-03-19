@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAccount, useContractEvent } from 'wagmi';
+import { useAccount, useContractEvent, useContractRead } from 'wagmi';
 import { useContract, useSigner } from 'wagmi';
 import artifact from '../contracts/Voting.json';
 import { toast } from 'react-toastify';
@@ -15,6 +15,12 @@ export function useVoting() {
   const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
   const [voters, setVoters] = useState<string[]>([]);
   const [proposals, setProposals] = useState<string[]>([]);
+
+  const { data: votingOwner } = useContractRead({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    functionName: 'owner',
+  });
 
   // SETUP CONTRACT'S EVENT LISTENER
   useContractEvent({
@@ -63,32 +69,24 @@ export function useVoting() {
     if (!voting) return;
 
     const voterRegisteredFilter = voting.filters.VoterRegistered();
-    console.log('voterRegisteredFilter:', voterRegisteredFilter);
     if (!voterRegisteredFilter) return;
 
     const voterRegisteredEvents = await voting.queryFilter(
       voterRegisteredFilter
     );
-    console.log('voterRegisteredEvents:', voterRegisteredEvents);
     if (!voterRegisteredEvents) return;
 
     const fetchedVoters = voterRegisteredEvents.map(
       (voter) => voter?.args?.voterAddress
     ) as string[];
-    console.log('fetchedVoters:', fetchedVoters);
 
     setVoters(fetchedVoters);
   }
 
   const getUserStatus = async () => {
-    if (!isConnected) {
-      setUserStatus('guest');
-      return;
-    }
+    if (!voting || !votingOwner) return;
 
-    const ownerAddr = await voting?.owner.call();
-
-    if (ownerAddr === address) {
+    if (votingOwner === address) {
       setUserStatus('owner');
       return;
     }
@@ -101,6 +99,8 @@ export function useVoting() {
       setUserStatus('voter');
       return;
     }
+
+    setUserStatus('guest');
   };
 
   async function addVoter(addr: string) {
