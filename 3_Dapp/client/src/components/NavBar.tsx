@@ -1,21 +1,21 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useVoting } from "../hooks";
-import { useConnectedWallet } from "../hooks";
-import logoUrl from "../assets/logo.png";
-import alyraLogoUrl from "../assets/alyra.png";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useVoting } from '../hooks';
+import logoUrl from '../assets/logo.png';
+import alyraLogoUrl from '../assets/alyra.png';
+import { useAccount } from 'wagmi';
 
 function NavBar() {
   const { userStatus } = useVoting();
-  const { userAddress } = useConnectedWallet();
+  const { isConnected } = useAccount();
 
   const statusTranslation = () => {
-    if (userStatus === "owner") {
-      return "Propriétaire";
+    if (userStatus === 'owner') {
+      return 'Propriétaire';
     }
-    if (userStatus === "voter") {
-      return "Élécteur";
+    if (userStatus === 'voter') {
+      return 'Élécteur';
     }
-    return "Invité";
+    return 'Invité';
   };
 
   return (
@@ -29,9 +29,9 @@ function NavBar() {
       <div className="flex w-full flex-col items-end">
         <div className="flex flex-col items-center">
           <ConnectButton />
-          {userAddress && (
+          {isConnected && (
             <span>
-              Bonjour ! Vous êtes{" "}
+              Bonjour ! Vous êtes{' '}
               <b className="text-primary">{statusTranslation()}</b>
             </span>
           )}

@@ -1,24 +1,25 @@
-import { useConnectedWallet, useVoting } from "../hooks";
-import BlockWorkflow1 from "./blocs/BlocWorkflow1";
+import { useAccount } from 'wagmi';
+import { useVoting } from '../hooks';
+import BlockWorkflow1 from './blocs/BlocWorkflow1';
 
 function ActionsContainer() {
   const { currentWorkflow, userStatus } = useVoting();
-  const { userAddress } = useConnectedWallet();
+  const { isConnected } = useAccount();
 
   const getWorkflowTitle = () => {
     switch (currentWorkflow) {
       case 0:
-        return "Enregistrez un ou plusieurs élécteurs grâce à leurs adresses (0x00...)";
+        return 'Enregistrez un ou plusieurs élécteurs grâce à leurs adresses (0x00...)';
       case 1:
-        return "Enregistrez une proposition de vote";
+        return 'Enregistrez une proposition de vote';
       case 2:
         return "La session d'enregistrement des propositions terminée";
       case 3:
-        return "Votez pour une des propositions enregistrées";
+        return 'Votez pour une des propositions enregistrées';
       case 4:
-        return "La session de vote est terminée";
+        return 'La session de vote est terminée';
       case 5:
-        return "Processus de vote terminé les résultats sont disponibles";
+        return 'Processus de vote terminé les résultats sont disponibles';
     }
   };
 
@@ -29,9 +30,9 @@ function ActionsContainer() {
           {getWorkflowTitle()}
         </h1>
         <div className="h-full w-full items-center justify-center p-9">
-          {userAddress ? (
+          {isConnected ? (
             <>
-              {userStatus === "owner" || userStatus === "voter" ? (
+              {userStatus === 'owner' || userStatus === 'voter' ? (
                 <>
                   {currentWorkflow === 0 && <BlockWorkflow1 />}
                   {currentWorkflow === 1 && (
