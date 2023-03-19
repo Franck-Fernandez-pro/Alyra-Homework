@@ -1,11 +1,19 @@
+import { toast } from 'react-toastify';
 import { useInput, useVoting } from '../../hooks';
 
 export function AddProposals({}: {}) {
   const { props: proposalField, setValue } = useInput<string>('');
-  const { userStatus } = useVoting();
+  const { userStatus, addProposal } = useVoting();
 
-  function handleAddProposal() {
+  async function handleAddProposal() {
     if (proposalField.value !== '') {
+      try {
+        await addProposal(proposalField.value);
+        toast.success('Proposition ajouté');
+        setValue('');
+      } catch (err) {
+        toast.error("Une erreur s'est produite");
+      }
     }
   }
 

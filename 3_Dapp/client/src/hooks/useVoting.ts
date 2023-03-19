@@ -7,7 +7,9 @@ import { toast } from 'react-toastify';
 export function useVoting() {
   const { address, isConnected } = useAccount();
   const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
-  const [userStatus, setUserStatus] = useState<string>('');
+  const [userStatus, setUserStatus] = useState<'owner' | 'guest' | 'voter'>(
+    'guest'
+  );
   const { data: signerData } = useSigner();
 
   // EVENTS
@@ -44,7 +46,6 @@ export function useVoting() {
         setLastAddedVoter(newVoter);
       }
     },
-    once: true,
   });
 
   const voting = useContract({
@@ -113,6 +114,17 @@ export function useVoting() {
     }
   }
 
+  async function addProposal(proposal: string) {
+    if (!voting) return;
+
+    try {
+      const response = await voting.addProposal(proposal);
+      return response;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   const nextStep = async () => {
     switch (currentWorkflow) {
       case 0:
@@ -171,6 +183,7 @@ export function useVoting() {
     voters,
     userStatus,
     addVoter,
+    addProposal,
     lastAddedVoter,
     nextStep,
   };
