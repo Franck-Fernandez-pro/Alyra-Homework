@@ -8,16 +8,15 @@ export default function Vote({}: {}) {
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
 
   async function handleVote() {
-    console.log('selectedProposal -> ', selectedProposal);
-    // if (!selectedProposal) return;
+    if (!selectedProposal) return;
 
-    // try {
-    //   await setVote(selectedProposal);
-    //   toast.success('Vous avez voté !');
-    //   setSelectedProposal(null);
-    // } catch (err) {
-    //   toast.error("Une erreur s'est produite");
-    // }
+    try {
+      await setVote(selectedProposal);
+      toast.success('Vous avez voté !');
+      setSelectedProposal(null);
+    } catch (err) {
+      toast.error("Une erreur s'est produite");
+    }
   }
 
   function handleSelect(e: MouseEvent<HTMLDivElement>) {
@@ -25,6 +24,13 @@ export default function Vote({}: {}) {
   }
 
   return voter?.hasVoted ? (
+    <Card title="📬 A voté">
+      <div className="flex space-x-1">
+        Votre vote a bien été enregistré. L'administrateur passera à la
+        prochaine étape dans quelques instants
+      </div>
+    </Card>
+  ) : (
     <Card
       title="Votez"
       onClick={handleVote}
@@ -45,10 +51,6 @@ export default function Vote({}: {}) {
             </div>
           ))}
       </div>
-    </Card>
-  ) : (
-    <Card title="Vous avez déjà voté">
-      <div className="flex space-x-1">Votre vote a bien été enregistré</div>
     </Card>
   );
 }

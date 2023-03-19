@@ -48,6 +48,7 @@ export function useVoting() {
     functionName: 'getVoter',
     args: [address],
     enabled: userIsVoter,
+    watch: true,
   });
 
   const { data: currentWorkflow } = useContractRead({
@@ -146,7 +147,18 @@ export function useVoting() {
     }
   }
 
-  async function setVote(proposalId: number) {}
+  async function setVote(proposalId: number) {
+    if (!voting) return;
+
+    try {
+      const response = await voting.setVote(proposalId);
+      console.log('response:', response);
+
+      return response;
+    } catch (err) {
+      throw err;
+    }
+  }
 
   const getUserStatus = async () => {
     if (!voting || !votingOwner) return;
