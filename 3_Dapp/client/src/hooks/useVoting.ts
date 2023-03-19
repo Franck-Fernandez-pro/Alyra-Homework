@@ -3,6 +3,7 @@ import { useAccount, useContractEvent, useContractRead } from 'wagmi';
 import { useContract, useSigner } from 'wagmi';
 import artifact from '../contracts/Voting.json';
 import { toast } from 'react-toastify';
+import { ethers } from 'ethers';
 
 export interface Voter {
   hasVoted: boolean;
@@ -33,7 +34,7 @@ export function useVoting() {
   // This data are build from contract events
   const [voters, setVoters] = useState<string[]>([]);
   const userIsVoter: boolean = address ? voters?.includes(address) : false;
-  const [proposals, setProposals] = useState<number[]>([1, 2, 3]);
+  const [proposals, setProposals] = useState<number[]>([]);
 
   const { data: votingOwner } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
@@ -70,20 +71,16 @@ export function useVoting() {
     },
   });
 
-  // useContractEvent({
-  //   address: import.meta.env.VITE_VOTING_ADDR,
-  //   abi: artifact.abi,
-  //   eventName: 'ProposalRegistered',
-  //   listener(a) {
-  //     //@ts-ignore
-  //     console.log('a:', a?._hex.toNumber());
-  //     //@ts-ignore
-  //     // const newVoter = label?.args?.voterAddress;
-  //     // if (!voters.find((voter) => voter == newVoter)) {
-  //     //   setLastAddedVoter(newVoter);
-  //     // }
-  //   },
-  // });
+  useContractEvent({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    eventName: 'ProposalRegistered',
+    listener(newProposal) {
+      const newP = ethers.BigNumber.from(newProposal).toNumber();
+
+      !proposals.includes(newP) && setProposals((p) => [...p, newP]);
+    },
+  });
 
   // -------------------------------------------------------------------- EFFECTS
   // FETCH USER STATUS
@@ -102,9 +99,9 @@ export function useVoting() {
 
   // FETCH CONTRACT EVENTS
   useEffect(() => {
-    isConnected && fetchVoters();
-    isConnected && fetchProposals();
-  }, []);
+    voters.length === 0 && fetchVoters();
+    proposals.length === 0 && fetchProposals();
+  }, [isConnected]);
 
   // -------------------------------------------------------------------- FUNCTIONS
   async function fetchVoters() {
@@ -126,20 +123,27 @@ export function useVoting() {
   }
 
   async function fetchProposals() {
-    // if (!voting) return;
-    // const proposalRegisteredFilter = voting.filters.ProposalRegistered();
-    // console.log('proposalRegisteredFilter:', proposalRegisteredFilter);
-    // if (!proposalRegisteredFilter) return;
-    // const proposalRegisteredEvents = await voting.queryFilter(
-    //   proposalRegisteredFilter
-    // );
-    // console.log('proposalRegisteredEvents:', proposalRegisteredEvents);
-    // if (!proposalRegisteredEvents) return;
-    // const fetchedProposals = proposalRegisteredEvents.map(
-    //   (proposal) => proposal?.args?.voterAddress
-    // ) as string[];
-    // console.log('fetchedProposals:', fetchedProposals);
-    // setProposals(fetchedProposals);
+    if (!voting) return;
+    const filter = voting.filters.ProposalRegistered();
+
+    try {
+      const result = await voting.queryFilter(filter);
+
+      const proposals = result.map((proposal) => {
+        //@ts-ignore
+        const pId = ethers.BigNumber.from(proposal.args.proposalId).toNumber();
+        // const proposalObject = await voting.getOneProposal(pId);
+
+        // return {
+        //   voteCount: proposalObject.voteCount,
+        //   description: proposalObject.description,
+        // };
+        return pId;
+      });
+      setProposals(proposals);
+    } catch (error) {
+      // console.error(error);
+    }
   }
 
   async function setVote(proposalId: number) {}
