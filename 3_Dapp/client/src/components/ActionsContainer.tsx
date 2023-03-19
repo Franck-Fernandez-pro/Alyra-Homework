@@ -1,6 +1,7 @@
 import { useAccount } from 'wagmi';
 import { useVoting } from '../hooks';
 import BlockWorkflow1 from './blocs/BlocWorkflow1';
+import AddProposals from './blocs/AddProposals';
 
 function ActionsContainer() {
   const { currentWorkflow, userStatus } = useVoting();
@@ -25,19 +26,14 @@ function ActionsContainer() {
 
   return (
     <div className="w-full">
-      <div className="bg-base-content flex h-full w-3/4 flex-col justify-center rounded-xl border">
-        <h1 className="m-3 text-center text-lg text-white">
-          {getWorkflowTitle()}
-        </h1>
-        <div className="h-full w-full items-center justify-center p-9">
+      <div className="flex h-full w-3/4 flex-col justify-center rounded-xl">
+        <div className="ml-5 h-full w-full items-center justify-center">
           {isConnected ? (
             <>
               {userStatus === 'owner' || userStatus === 'voter' ? (
                 <>
                   {currentWorkflow === 0 && <BlockWorkflow1 />}
-                  {currentWorkflow === 1 && (
-                    <div className="text-white">interface wf 1</div>
-                  )}
+                  {currentWorkflow === 1 && <AddProposals />}
                   {currentWorkflow === 2 && (
                     <div className="text-white">interface wf 2</div>
                   )}
