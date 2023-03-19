@@ -1,9 +1,9 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useVoting } from '../hooks';
 import VotingList from './VotingList';
 
 function UtilsInterface () {
-  const { userStatus, votersAddress, lastAddedVoter, nextStep } = useVoting();
+  const { userStatus, nextStep } = useVoting();
   const [display, setDisplay] = useState<string>("");
 
   const handleSeeVoters = () => {

@@ -5,7 +5,7 @@ interface Props {
 }
 
 function VotingList({ dataToDisplay }: Props) {
-  const { votersAddress } = useVoting();
+  const { voters } = useVoting();
   const VOTES_TEMPO = [
     "azerty",
     "azerty",
@@ -19,13 +19,13 @@ function VotingList({ dataToDisplay }: Props) {
     <div className="flex flex-col justify-center gap-5 w-full">
       { dataToDisplay === "voters" && (
         <>
-          {votersAddress.map((elem) => {
+          {voters.map((voter) => {
             return(
               <div
                 className="badge badge-tertiary cursor-pointer w-full"
-                onClick={() => navigator.clipboard.writeText(elem)}
+                onClick={() => navigator.clipboard.writeText(voter)}
               >
-                {elem}
+                {voter}
               </div>
             )
           })}
