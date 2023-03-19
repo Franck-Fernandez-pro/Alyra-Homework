@@ -21,7 +21,7 @@ function UtilsInterface() {
   return (
     <div className="flex justify-center">
       {(userStatus == 'voter' || userStatus == 'owner') && (
-        <div className="alert flex w-1/2 justify-around shadow-lg">
+        <div className="flex space-x-5">
           <label htmlFor="my-modal" onClick={handleSeeVoters} className="btn">
             Voir les élécteurs
           </label>
