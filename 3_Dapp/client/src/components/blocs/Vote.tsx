@@ -4,7 +4,7 @@ import Card from '../Card';
 import { MouseEvent, useState } from 'react';
 
 export default function Vote({}: {}) {
-  const { proposals, setVote } = useVoting();
+  const { proposals, setVote, voter } = useVoting();
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
 
   async function handleVote() {
@@ -24,7 +24,7 @@ export default function Vote({}: {}) {
     setSelectedProposal(parseInt(e.currentTarget.id));
   }
 
-  return (
+  return voter?.hasVoted ? (
     <Card
       title="Votez"
       onClick={handleVote}
@@ -45,6 +45,10 @@ export default function Vote({}: {}) {
             </div>
           ))}
       </div>
+    </Card>
+  ) : (
+    <Card title="Vous avez déjà voté">
+      <div className="flex space-x-1">Votre vote a bien été enregistré</div>
     </Card>
   );
 }
