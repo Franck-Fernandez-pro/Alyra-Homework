@@ -5,42 +5,44 @@ interface Props {
 }
 
 function VotingList({ dataToDisplay }: Props) {
-  const { voters } = useVoting();
-  const VOTES_TEMPO = [
-    'azerty',
-    'azerty',
-    'azerty',
-    'azerty',
-    'azerty',
-    'azerty',
-  ];
+  const { voters, proposals } = useVoting();
 
   return (
     <div className="flex w-full flex-col justify-center gap-5">
       {dataToDisplay === 'voters' && (
         <>
-          {voters.map((voter, idx) => (
-            <div
-              className="badge badge-tertiary w-full cursor-pointer"
-              onClick={() => navigator.clipboard.writeText(voter)}
-              key={idx}
-            >
-              {voter}
-            </div>
-          ))}
+          <h3 className="mb-3 text-2xl font-bold">Liste des voteurs</h3>
+          <div className="flex items-center justify-center">
+            {voters.map((voter, idx) => (
+              <div
+                className="badge badge-secondary cursor-pointer"
+                onClick={() => navigator.clipboard.writeText(voter)}
+                key={idx}
+              >
+                {voter}
+              </div>
+            ))}
+          </div>
         </>
       )}
       {dataToDisplay === 'votes' && (
         <>
-          {VOTES_TEMPO.map((vote, idx) => (
-            <div
-              className="badge badge-tertiary w-full cursor-pointer"
-              onClick={() => navigator.clipboard.writeText(vote)}
-              key={idx}
-            >
-              {vote}
-            </div>
-          ))}
+          <h3 className="mb-3 text-2xl font-bold">Liste des propositions</h3>
+          <div className="flex space-x-1">
+            {proposals.length
+              ? proposals.map((proposal, idx) => (
+                  <div
+                    className="badge badge-primary cursor-pointer"
+                    onClick={() =>
+                      navigator.clipboard.writeText(proposal.toString())
+                    }
+                    key={idx}
+                  >
+                    {proposal}
+                  </div>
+                ))
+              : "Il n'y a pas encore de propositions"}
+          </div>
         </>
       )}
     </div>

@@ -51,12 +51,13 @@ export function useVoting() {
     watch: true,
   });
 
-  const { data: currentWorkflow } = useContractRead({
+  const { data: currentWorkflowStatus } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
     functionName: 'workflowStatus',
     watch: true,
   });
+  const currentWorkflow = currentWorkflowStatus as number;
 
   // -------------------------------------------------------------------- SETUP CONTRACT'S EVENT LISTENER
   useContractEvent({
