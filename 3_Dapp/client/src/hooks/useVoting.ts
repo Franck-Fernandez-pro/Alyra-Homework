@@ -125,7 +125,6 @@ export function useVoting() {
 
   // FETCH CONTRACT EVENTS
   useEffect(() => {
-    console.log('FETCH CONTRACT EVENTS');
     voters.length === 0 && fetchVoters();
     proposals.length === 0 && fetchProposals();
   });
