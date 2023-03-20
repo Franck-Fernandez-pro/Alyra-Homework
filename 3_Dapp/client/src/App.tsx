@@ -10,9 +10,9 @@ function App() {
       <NavBar />
       <main>
         <ToastContainer position="bottom-right" hideProgressBar />
-        <div className="mt-20 flex gap-9">
-          <Workflow />
+        <div className="flex gap-16 mx-44">
           <ActionsContainer />
+          <Workflow />
         </div>
       </main>
       <footer className="footer footer-center bg-base-300 text-base-content p-4">
