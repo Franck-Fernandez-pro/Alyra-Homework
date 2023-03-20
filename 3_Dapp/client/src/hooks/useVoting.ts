@@ -40,6 +40,7 @@ export function useVoting() {
   const [voters, setVoters] = useState<string[]>([]);
   const userIsVoter: boolean = address ? voters?.includes(address) : false;
   const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [lock, setLock] = useState<boolean>(false);
 
   const { data: votingOwner } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
@@ -99,7 +100,11 @@ export function useVoting() {
     listener(newProposal) {
       const newP = ethers.BigNumber.from(newProposal).toNumber();
 
-      !proposals.includes(newP) && setProposals((p) => [...p, newP]);
+      !proposals.find((p) => p.id === newP) &&
+        setProposals((p) => [
+          ...p,
+          { id: newP, description: '', voteCount: 0 },
+        ]);
     },
   });
 
@@ -149,7 +154,7 @@ export function useVoting() {
   }
 
   async function fetchProposals() {
-    if (!voting) return;
+    if (!voting || lock) return;
     const filter = voting.filters.ProposalRegistered();
 
     try {
@@ -166,6 +171,7 @@ export function useVoting() {
       });
       const response = await Promise.all(proposals);
       setProposals(response);
+      setLock(true);
     } catch (error) {
       // console.error(error);
     }

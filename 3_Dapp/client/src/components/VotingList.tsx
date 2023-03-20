@@ -11,8 +11,8 @@ function VotingList({ dataToDisplay }: Props) {
     <div className="flex w-full flex-col justify-center gap-5">
       {dataToDisplay === 'voters' && (
         <>
-          <h3 className="mb-3 text-2xl font-bold">Liste des voteurs</h3>
-          <div className="flex items-center justify-center">
+          <h3 className="mb-3 text-2xl font-bold">Liste des élécteurs</h3>
+          <div className="flex flex-col gap-3 items-center justify-center">
             {voters
               .filter((v, i) => voters.indexOf(v) === i)
               .map((voter, idx) => (
@@ -30,7 +30,7 @@ function VotingList({ dataToDisplay }: Props) {
       {dataToDisplay === 'votes' && (
         <>
           <h3 className="mb-3 text-2xl font-bold">Liste des propositions</h3>
-          <div className="flex space-x-1">
+          <div className="flex items-center justify-center flex-col gap-3">
             {proposals.length
               ? proposals
                   .filter((v, i) => proposals.indexOf(v) === i)

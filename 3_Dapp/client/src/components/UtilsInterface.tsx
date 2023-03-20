@@ -20,13 +20,13 @@ function UtilsInterface() {
 
   return (
     <div className="flex justify-center">
-      {(userStatus == 'voter' || userStatus == 'owner') && (
+      {(userStatus == 'voter' || userStatus == 'owner') ? (
         <div className="flex space-x-5">
           <label htmlFor="my-modal" onClick={handleSeeVoters} className="btn">
             Voir les élécteurs
           </label>
           <label htmlFor="my-modal" onClick={handleSeeVotes} className="btn">
-            Voir les votes
+            Voir les propositions
           </label>
 
           {userStatus === 'owner' && (
@@ -47,6 +47,10 @@ function UtilsInterface() {
               </div>
             </div>
           </div>
+        </div>
+      ) : (
+        <div className="w-full text-center">
+          Vous n'êtes pas connecté ou pas autorisé à avoir accès à cette interface
         </div>
       )}
     </div>

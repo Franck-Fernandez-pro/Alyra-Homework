@@ -13,7 +13,7 @@ const Card = ({
   btnDisabled?: boolean;
   btnText?: string;
 }) => (
-  <div className="card bg-base-100 w-96 shadow-xl">
+  <div className="card border bg-base-100 w-96 shadow-xl">
     <div className="card-body space-y-5">
       <h2 className="card-title">{title}</h2>
       {children && children}

@@ -5,29 +5,19 @@ function Workflow() {
   const { currentWorkflow } = useVoting();
 
   const getStatus = (workflow: number) => {
-    if (currentWorkflow === workflow) return "current";
-    if (currentWorkflow > workflow) return "done";
-    return "pending";
+    if (currentWorkflow >= workflow) return "step-primary";
+    return "";
   };
 
   return (
-    <div className="flex w-full flex-col items-end gap-5">
-      <WorkflowStatus
-        status={getStatus(0)}
-        label="Enregistrement des élécteurs"
-      />
-      <WorkflowStatus
-        status={getStatus(1)}
-        label="Enregistrement des proposition en cours"
-      />
-      <WorkflowStatus
-        status={getStatus(2)}
-        label="Enregistrement des propositions fermé"
-      />
-      <WorkflowStatus status={getStatus(3)} label="Session de vote en cours" />
-      <WorkflowStatus status={getStatus(4)} label="Session de vote fermée" />
-      <WorkflowStatus status={getStatus(5)} label="Résultats des votes" />
-    </div>
+    <ul className="steps steps-vertical w-full">
+      <li className={`step ${getStatus(0)}`}>Enregistrement des élécteurs</li>
+      <li className={`step ${getStatus(1)}`}>Enregistrement des proposition en cours</li>
+      <li className={`step ${getStatus(2)}`}>Enregistrement des propositions fermé</li>
+      <li className={`step ${getStatus(3)}`}>Session de vote en cours</li>
+      <li className={`step ${getStatus(4)}`}>Session de vote fermée</li>
+      <li className={`step ${getStatus(5)}`}>Résultats des votes disponibles</li>
+    </ul>
   );
 }
 
