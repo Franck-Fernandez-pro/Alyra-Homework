@@ -26,7 +26,7 @@ function UtilsInterface() {
             Voir les élécteurs
           </label>
           <label htmlFor="my-modal" onClick={handleSeeVotes} className="btn">
-            Voir les votes
+            Voir les propositions
           </label>
 
           {userStatus === 'owner' && (
