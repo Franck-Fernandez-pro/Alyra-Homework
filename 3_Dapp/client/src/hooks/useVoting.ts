@@ -30,7 +30,6 @@ export function useVoting() {
   });
   const { address } = useAccount();
   const [voter, setVoter] = useState<Voter | null>(null);
-  const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
   const [userStatus, setUserStatus] = useState<'owner' | 'guest' | 'voter'>(
     'guest'
   );
@@ -70,9 +69,9 @@ export function useVoting() {
     functionName: 'winningProposalID',
     watch: true,
   });
-  const winningProposalId = ethers.BigNumber.from(
-    winningProposalIdResponse
-  ).toNumber();
+  const winningProposalId = winningProposalIdResponse
+    ? ethers.BigNumber.from(winningProposalIdResponse).toNumber()
+    : 0;
 
   const { data: winningProposalObject } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
@@ -102,8 +101,8 @@ export function useVoting() {
     listener(_, label) {
       //@ts-ignore
       const newVoter = label?.args?.voterAddress;
-      if (!voters.find((voter) => voter == newVoter)) {
-        setLastAddedVoter(newVoter);
+      if (!voters.includes(newVoter)) {
+        setVoters((prevVoter) => [...prevVoter, newVoter]);
       }
     },
   });
@@ -123,7 +122,7 @@ export function useVoting() {
   // FETCH USER STATUS
   useEffect(() => {
     getUserStatus();
-  }, [address]);
+  }, [address, voters]);
 
   // FETCH CURRENT VOTER
   useEffect(() => {
@@ -136,6 +135,7 @@ export function useVoting() {
 
   // FETCH CONTRACT EVENTS
   useEffect(() => {
+    console.log('FETCH CONTRACT EVENTS');
     voters.length === 0 && fetchVoters();
     proposals.length === 0 && fetchProposals();
   });
@@ -173,15 +173,13 @@ export function useVoting() {
       const proposals = result.map((proposal) => {
         //@ts-ignore
         const pId = ethers.BigNumber.from(proposal.args.proposalId).toNumber();
-        // const proposalObject = await voting.getOneProposal(pId);
-
-        // return {
-        //   voteCount: proposalObject.voteCount,
-        //   description: proposalObject.description,
-        // };
-        return pId;
+        return voting.getOneProposal(pId).then((proposalObject: any) => ({
+          voteCount: ethers.BigNumber.from(proposalObject.voteCount).toNumber(),
+          description: proposalObject.description,
+        }));
       });
-      setProposals(proposals);
+      const response = await Promise.all(proposals);
+      setProposals(response);
     } catch (error) {
       // console.error(error);
     }
@@ -207,7 +205,7 @@ export function useVoting() {
       return;
     }
 
-    if (lastAddedVoter === address) {
+    if (address && voters.includes(address)) {
       setUserStatus('voter');
       return;
     }
@@ -300,7 +298,6 @@ export function useVoting() {
     userStatus,
     addVoter,
     addProposal,
-    lastAddedVoter,
     nextStep,
     proposals,
     setVote,
