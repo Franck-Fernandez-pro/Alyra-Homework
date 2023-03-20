@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
-import { hardhat } from 'wagmi/chains';
+import { hardhat, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import {
   getDefaultWallets,
@@ -12,7 +12,10 @@ import './index.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import 'react-toastify/dist/ReactToastify.css';
 
-const { chains, provider } = configureChains([hardhat], [publicProvider()]);
+const { chains, provider } = configureChains(
+  [hardhat, goerli],
+  [publicProvider()]
+);
 
 const { connectors } = getDefaultWallets({
   appName: 'My RainbowKit App',
