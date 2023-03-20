@@ -44,13 +44,15 @@ export default function Vote({}: {}) {
             .map((p, idx) => (
               <div
                 className={`badge cursor-pointer ${
-                  selectedProposal === p ? 'badge-secondary' : 'badge-primary'
+                  selectedProposal === p.id
+                    ? 'badge-secondary'
+                    : 'badge-primary'
                 }`}
                 key={idx}
-                id={p.toString()}
+                id={p.id.toString()}
                 onClick={handleSelect}
               >
-                {p}
+                {p.description}
               </div>
             ))}
       </div>
