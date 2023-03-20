@@ -2,7 +2,22 @@ import { useVoting } from '../../hooks';
 import Card from '../Card';
 
 function Result() {
-  return <Card title="🎉 Résultat du vote">Le vaiqueur est</Card>;
+  const { winningProposal } = useVoting();
+
+  return (
+    <Card title="🎉 Résultat du vote">
+      {winningProposal ? (
+        <p>
+          Le vaiqueur est{' '}
+          <span className="text-primary font-bold">
+            {winningProposal.description}
+          </span>
+        </p>
+      ) : (
+        "Une erreur s'est produite"
+      )}
+    </Card>
+  );
 }
 
 export default Result;

@@ -16,6 +16,11 @@ export interface VotedProposalID {
   _hex: string;
 }
 
+interface Proposal {
+  description: string;
+  voteCount: number;
+}
+
 export function useVoting() {
   const { data: signerData } = useSigner();
   const voting = useContract({
@@ -58,6 +63,36 @@ export function useVoting() {
     watch: true,
   });
   const currentWorkflow = currentWorkflowStatus as number;
+
+  const { data: winningProposalIdResponse } = useContractRead({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    functionName: 'winningProposalID',
+    watch: true,
+  });
+  const winningProposalId = ethers.BigNumber.from(
+    winningProposalIdResponse
+  ).toNumber();
+
+  const { data: winningProposalObject } = useContractRead({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    functionName: 'getOneProposal',
+    args: [winningProposalId],
+    enabled: winningProposalId !== 0,
+    watch: true,
+  });
+
+  const winningProposal: Proposal = winningProposalObject
+    ? ({
+        //@ts-ignore
+        description: winningProposalObject.description,
+        voteCount: ethers.BigNumber.from(
+          //@ts-ignore
+          winningProposalObject.voteCount
+        ).toNumber(),
+      } as Proposal)
+    : { description: '', voteCount: 0 };
 
   // -------------------------------------------------------------------- SETUP CONTRACT'S EVENT LISTENER
   useContractEvent({
@@ -103,7 +138,7 @@ export function useVoting() {
   useEffect(() => {
     voters.length === 0 && fetchVoters();
     proposals.length === 0 && fetchProposals();
-  }, [isConnected]);
+  });
 
   // -------------------------------------------------------------------- FUNCTIONS
   async function fetchVoters() {
@@ -266,5 +301,6 @@ export function useVoting() {
     nextStep,
     proposals,
     setVote,
+    winningProposal,
   };
 }
