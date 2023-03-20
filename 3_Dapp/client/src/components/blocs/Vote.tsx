@@ -32,27 +32,22 @@ export default function Vote({}: {}) {
     </Card>
   ) : (
     <Card
-      title="Votez"
+      title="Votez !"
       onClick={handleVote}
       btnDisabled={selectedProposal === null}
       btnText="Voter"
     >
       <div className="flex space-x-1">
-        {proposals &&
-          proposals
-            .filter((v, i) => proposals.indexOf(v) === i)
-            .map((p, idx) => (
+            {proposals && proposals.map((vote, index) => 
               <div
-                className={`badge cursor-pointer ${
-                  selectedProposal === p ? 'badge-secondary' : 'badge-primary'
-                }`}
-                key={idx}
-                id={p.toString()}
+                className={`badge cursor-pointer ${index === selectedProposal && "badge-secondary" }`}
+                key={index}
+                id={index.toString()}
                 onClick={handleSelect}
               >
-                {p}
+                {vote.description}
               </div>
-            ))}
+            )}
       </div>
     </Card>
   );
