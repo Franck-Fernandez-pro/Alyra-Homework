@@ -1,4 +1,4 @@
-# Dapp
+# ChainVote
 
 ## Client
 
