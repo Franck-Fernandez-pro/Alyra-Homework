@@ -1,21 +1,16 @@
-import { ChangeEvent, useState } from 'react';
-import { useVoting } from '../../hooks';
+import { useInput, useVoting } from '../../hooks';
 import { toast } from 'react-toastify';
 import { isAddress } from 'ethers/lib/utils.js';
+import Card from '../Card';
 
-function BlockWorkflow1() {
-  const [inputAddress, setInputAddress] = useState<string>('');
-
+function AddVoter() {
+  const { props: addressField, setValue } = useInput<string>('');
   const { userStatus, addVoter } = useVoting();
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setInputAddress(e.currentTarget.value);
-  };
-
   const handleClickAdd = async () => {
-    if (isAddress(inputAddress)) {
+    if (isAddress(addressField.value)) {
       try {
-        await addVoter(inputAddress);
+        await addVoter(addressField.value);
         toast.success('Élécteur ajouté');
       } catch (err) {
         toast.error('Erreur du smart contract');
@@ -24,24 +19,18 @@ function BlockWorkflow1() {
       toast.error("Ce n'est pas une adresse");
     }
 
-    setInputAddress('');
+    setValue('');
   };
 
   return (
-    <>
+    <Card title="✏️ Ajouter des voteurs" onClick={handleClickAdd}>
       {userStatus === 'owner' && (
-        <div className="flex flex-col items-center justify-center gap-2">
-          <input
-            className="input input-bordered w-full max-w-xs"
-            type="text"
-            value={inputAddress}
-            onChange={handleInputChange}
-            placeholder="Adresse du futur élécteur (0x00...)"
-          />
-          <button className="btn btn-primary" onClick={handleClickAdd}>
-            ajouter
-          </button>
-        </div>
+        <input
+          className="input input-bordered input-sm w-full max-w-xs"
+          type="text"
+          placeholder="0xf0535..."
+          {...addressField}
+        />
       )}
       {userStatus === 'voter' && (
         <div className="alert alert-success shadow-lg">
@@ -52,9 +41,9 @@ function BlockWorkflow1() {
             viewBox="0 0 24 24"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
@@ -64,8 +53,8 @@ function BlockWorkflow1() {
           </span>
         </div>
       )}
-    </>
+    </Card>
   );
 }
 
-export default BlockWorkflow1;
+export default AddVoter;

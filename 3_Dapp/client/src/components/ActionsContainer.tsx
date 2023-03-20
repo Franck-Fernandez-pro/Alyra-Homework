@@ -1,54 +1,39 @@
-import { useConnectedWallet, useVoting } from "../hooks";
-import BlockWorkflow1 from "./blocs/BlocWorkflow1";
+import { useAccount } from 'wagmi';
+import { useVoting } from '../hooks';
+import AddProposals from './blocs/AddProposals';
+import Vote from './blocs/Vote';
+import Result from './blocs/Result';
+import Card from './Card';
+import AddVoter from './blocs/AddVoter';
 
 function ActionsContainer() {
   const { currentWorkflow, userStatus } = useVoting();
-  const { userAddress } = useConnectedWallet();
-
-  const getWorkflowTitle = () => {
-    switch (currentWorkflow) {
-      case 0:
-        return "Enregistrez un ou plusieurs élécteurs grâce à leurs adresses (0x00...)";
-      case 1:
-        return "Enregistrez une proposition de vote";
-      case 2:
-        return "La session d'enregistrement des propositions terminée";
-      case 3:
-        return "Votez pour une des propositions enregistrées";
-      case 4:
-        return "La session de vote est terminée";
-      case 5:
-        return "Processus de vote terminé les résultats sont disponibles";
-    }
-  };
+  const { isConnected } = useAccount();
 
   return (
     <div className="w-full">
-      <div className="bg-base-content flex h-full w-3/4 flex-col justify-center rounded-xl border">
-        <h1 className="m-3 text-center text-lg text-white">
-          {getWorkflowTitle()}
-        </h1>
-        <div className="h-full w-full items-center justify-center p-9">
-          {userAddress ? (
+      <div className="flex h-full w-3/4 flex-col justify-center rounded-xl">
+        <div className="ml-5 h-full w-full items-center justify-center">
+          {isConnected ? (
             <>
-              {userStatus === "owner" || userStatus === "voter" ? (
+              {userStatus === 'owner' || userStatus === 'voter' ? (
                 <>
-                  {currentWorkflow === 0 && <BlockWorkflow1 />}
-                  {currentWorkflow === 1 && (
-                    <div className="text-white">interface wf 1</div>
-                  )}
+                  {currentWorkflow === 0 && <AddVoter />}
+                  {currentWorkflow === 1 && <AddProposals />}
                   {currentWorkflow === 2 && (
-                    <div className="text-white">interface wf 2</div>
+                    <Card title="⏳ Enregistrement terminé">
+                      L'administrateur passera à la prochaine étape dans
+                      quelques instants
+                    </Card>
                   )}
-                  {currentWorkflow === 3 && (
-                    <div className="text-white">interface wf 3</div>
-                  )}
+                  {currentWorkflow === 3 && <Vote />}
                   {currentWorkflow === 4 && (
-                    <div className="text-white">interface wf 4</div>
+                    <Card title="⏳ Vote terminé">
+                      L'administrateur passera à la prochaine étape dans
+                      quelques instants
+                    </Card>
                   )}
-                  {currentWorkflow === 5 && (
-                    <div className="text-white">interface wf 5</div>
-                  )}
+                  {currentWorkflow === 5 && <Result />}
                 </>
               ) : (
                 <div className="alert alert-warning shadow-lg">
@@ -59,9 +44,9 @@ function ActionsContainer() {
                     viewBox="0 0 24 24"
                   >
                     <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                     />
                   </svg>

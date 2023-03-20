@@ -1,108 +1,169 @@
 import { useEffect, useState } from 'react';
-import { useAccount, useContractEvent } from 'wagmi';
+import { useAccount, useContractEvent, useContractRead } from 'wagmi';
 import { useContract, useSigner } from 'wagmi';
 import artifact from '../contracts/Voting.json';
 import { toast } from 'react-toastify';
+import { ethers } from 'ethers';
+
+export interface Voter {
+  hasVoted: boolean;
+  isRegistered: boolean;
+  votedProposalId: VotedProposalID;
+}
+
+export interface VotedProposalID {
+  _type: string;
+  _hex: string;
+}
 
 export function useVoting() {
-  const { address } = useAccount();
-  const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
-  const [userStatus, setUserStatus] = useState<string>('');
   const { data: signerData } = useSigner();
+  const voting = useContract({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    signerOrProvider: signerData,
+  });
+  const { address, isConnected } = useAccount();
+  const [voter, setVoter] = useState<Voter | null>(null);
+  const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
+  const [userStatus, setUserStatus] = useState<'owner' | 'guest' | 'voter'>(
+    'guest'
+  );
 
   // EVENTS
   // This data are build from contract events
-  const [currentWorkflow, setCurrentWorkflow] = useState<number>(0);
   const [voters, setVoters] = useState<string[]>([]);
-  const [proposals, setProposals] = useState<string[]>([]);
+  const userIsVoter: boolean = address ? voters?.includes(address) : false;
+  const [proposals, setProposals] = useState<number[]>([]);
 
-  useContractEvent({
+  const { data: votingOwner } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
-    eventName: 'WorkflowStatusChange',
-    listener(_, __, owner) {
-      //@ts-ignore
-      owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
-    },
+    functionName: 'owner',
   });
 
+  const { data: connectedVoter } = useContractRead({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    functionName: 'getVoter',
+    args: [address],
+    enabled: userIsVoter,
+    watch: true,
+  });
+
+  const { data: currentWorkflow } = useContractRead({
+    address: import.meta.env.VITE_VOTING_ADDR,
+    abi: artifact.abi,
+    functionName: 'workflowStatus',
+    watch: true,
+  });
+
+  // -------------------------------------------------------------------- SETUP CONTRACT'S EVENT LISTENER
   useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
     eventName: 'VoterRegistered',
-    listener(_, label, __) {
+    listener(_, label) {
       //@ts-ignore
       const newVoter = label?.args?.voterAddress;
       if (!voters.find((voter) => voter == newVoter)) {
         setLastAddedVoter(newVoter);
       }
     },
-    once: true,
   });
 
-  const voting = useContract({
+  useContractEvent({
     address: import.meta.env.VITE_VOTING_ADDR,
     abi: artifact.abi,
-    signerOrProvider: signerData,
+    eventName: 'ProposalRegistered',
+    listener(newProposal) {
+      const newP = ethers.BigNumber.from(newProposal).toNumber();
+
+      !proposals.includes(newP) && setProposals((p) => [...p, newP]);
+    },
   });
 
   // -------------------------------------------------------------------- EFFECTS
-  //- ADD COMMENT
+  // FETCH USER STATUS
   useEffect(() => {
     getUserStatus();
-  }, [voters, lastAddedVoter]);
+  }, [address]);
 
-  // SETUP CONTRACT'S EVENT LISTENER
+  // FETCH CURRENT VOTER
   useEffect(() => {
-    useContractEvent({
-      address: import.meta.env.VITE_VOTING_ADDR,
-      abi: artifact.abi,
-      eventName: 'WorkflowStatusChange',
-      listener(_, __, owner) {
-        //@ts-ignore
-        owner?.args?.newStatus && setCurrentWorkflow(owner?.args?.newStatus);
-      },
-    });
-
-    useContractEvent({
-      address: import.meta.env.VITE_VOTING_ADDR,
-      abi: artifact.abi,
-      eventName: 'VoterRegistered',
-      listener(_, label, __) {
-        //@ts-ignore
-        const newVoter = label?.args?.voterAddress;
-        if (!voters.find((elem) => elem == newVoter)) {
-          setLastAddedVoter(newVoter);
-        }
-      },
-      once: true,
-    });
-  }, []);
+    if (connectedVoter) {
+      const { isRegistered, hasVoted, votedProposalId } =
+        connectedVoter as Voter;
+      setVoter({ isRegistered, hasVoted, votedProposalId });
+    }
+  }, [connectedVoter]);
 
   // FETCH CONTRACT EVENTS
   useEffect(() => {
-    fetchVoters();
-  }, [signerData]);
+    voters.length === 0 && fetchVoters();
+    proposals.length === 0 && fetchProposals();
+  }, [isConnected]);
 
   // -------------------------------------------------------------------- FUNCTIONS
   async function fetchVoters() {
-    const voterRegisteredFilter = voting?.filters.VoterRegistered();
+    if (!voting) return;
+
+    const voterRegisteredFilter = voting.filters.VoterRegistered();
     if (!voterRegisteredFilter) return;
 
-    const voterRegisteredEvents = await voting?.queryFilter(
+    const voterRegisteredEvents = await voting.queryFilter(
       voterRegisteredFilter
     );
-    const fetchedVoters = voterRegisteredEvents?.map(
+    if (!voterRegisteredEvents) return;
+
+    const fetchedVoters = voterRegisteredEvents.map(
       (voter) => voter?.args?.voterAddress
     ) as string[];
 
     setVoters(fetchedVoters);
   }
 
-  const getUserStatus = async () => {
-    const ownerAddr = await voting?.owner.call();
+  async function fetchProposals() {
+    if (!voting) return;
+    const filter = voting.filters.ProposalRegistered();
 
-    if (ownerAddr === address) {
+    try {
+      const result = await voting.queryFilter(filter);
+
+      const proposals = result.map((proposal) => {
+        //@ts-ignore
+        const pId = ethers.BigNumber.from(proposal.args.proposalId).toNumber();
+        // const proposalObject = await voting.getOneProposal(pId);
+
+        // return {
+        //   voteCount: proposalObject.voteCount,
+        //   description: proposalObject.description,
+        // };
+        return pId;
+      });
+      setProposals(proposals);
+    } catch (error) {
+      // console.error(error);
+    }
+  }
+
+  async function setVote(proposalId: number) {
+    if (!voting) return;
+
+    try {
+      const response = await voting.setVote(proposalId);
+      console.log('response:', response);
+
+      return response;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  const getUserStatus = async () => {
+    if (!voting || !votingOwner) return;
+
+    if (votingOwner === address) {
       setUserStatus('owner');
       return;
     }
@@ -123,6 +184,17 @@ export function useVoting() {
     try {
       const response = await voting?.addVoter(addr);
 
+      return response;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async function addProposal(proposal: string) {
+    if (!voting) return;
+
+    try {
+      const response = await voting.addProposal(proposal);
       return response;
     } catch (err) {
       throw err;
@@ -185,9 +257,13 @@ export function useVoting() {
     currentWorkflow,
     voting,
     voters,
+    voter,
     userStatus,
     addVoter,
+    addProposal,
     lastAddedVoter,
     nextStep,
+    proposals,
+    setVote,
   };
 }

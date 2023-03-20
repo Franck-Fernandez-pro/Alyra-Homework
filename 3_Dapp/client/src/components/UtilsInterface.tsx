@@ -1,45 +1,52 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useVoting } from '../hooks';
 import VotingList from './VotingList';
 
-function UtilsInterface () {
-  const { userStatus, votersAddress, lastAddedVoter, nextStep } = useVoting();
-  const [display, setDisplay] = useState<string>("");
+function UtilsInterface() {
+  const { userStatus, nextStep } = useVoting();
+  const [display, setDisplay] = useState<'voters' | 'votes'>('votes');
 
   const handleSeeVoters = () => {
-    setDisplay("voters");
+    setDisplay('voters');
   };
 
   const handleSeeVotes = () => {
-    setDisplay("votes");
+    setDisplay('votes');
   };
 
   const handleNextStep = () => {
-    console.log("next step");
     nextStep();
   };
 
   return (
     <div className="flex justify-center">
-      { (userStatus == "voter" || userStatus == "owner") && (
-        <div className="alert shadow-lg w-1/2 flex justify-around">
-            <label htmlFor="my-modal" onClick={handleSeeVoters} className="btn">Voir les élécteurs</label>
-            <label htmlFor="my-modal" onClick={handleSeeVotes} className="btn">Voir les votes</label>
-            
-            { userStatus === "owner" && 
-              <button onClick={handleNextStep} className="btn btn-secondary">Étape suivante</button>
-            }
+      {(userStatus == 'voter' || userStatus == 'owner') && (
+        <div className="flex space-x-5">
+          <label htmlFor="my-modal" onClick={handleSeeVoters} className="btn">
+            Voir les élécteurs
+          </label>
+          <label htmlFor="my-modal" onClick={handleSeeVotes} className="btn">
+            Voir les votes
+          </label>
 
-            <input type="checkbox" id="my-modal" className="modal-toggle" />
+          {userStatus === 'owner' && (
+            <button onClick={handleNextStep} className="btn btn-secondary">
+              Étape suivante
+            </button>
+          )}
 
-            <div className="modal">
-              <div className="modal-box">
-                <VotingList dataToDisplay={display}/>
-                <div className="modal-action">
-                  <label htmlFor="my-modal" className="btn">fermer</label>
-                </div>
+          <input type="checkbox" id="my-modal" className="modal-toggle" />
+
+          <div className="modal">
+            <div className="modal-box">
+              <VotingList dataToDisplay={display} />
+              <div className="modal-action">
+                <label htmlFor="my-modal" className="btn">
+                  fermer
+                </label>
               </div>
             </div>
+          </div>
         </div>
       )}
     </div>

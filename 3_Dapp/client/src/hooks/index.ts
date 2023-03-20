@@ -1,2 +1,2 @@
-export * from "./useVoting";
-export * from "./useConnectedWallet";
+export * from './useVoting';
+export * from './useInput';
