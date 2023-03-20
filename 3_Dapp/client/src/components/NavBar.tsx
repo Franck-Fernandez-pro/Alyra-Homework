@@ -1,7 +1,7 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useVoting } from '../hooks';
 import logoUrl from '../assets/logo.png';
-import alyraLogoUrl from '../assets/alyra.png';
+import alyraLogoUrl from '../assets/alyra.svg';
 import { useAccount } from 'wagmi';
 
 function NavBar() {
