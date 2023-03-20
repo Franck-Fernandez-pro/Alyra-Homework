@@ -39,5 +39,5 @@ $ npx hardhat run scripts/deploy.ts --network goerli
 
 ### Links
 
-- App : https://alyra-homework-iziqckbhp-franck-fernandez-pro.vercel.app/
+- App : https://alyra-homework.vercel.app
 - Vidéo : https://drive.google.com/file/d/1sKO9MmyzhUMz9FWrGY_VemSfBGhkZiun/view?usp=sharing
