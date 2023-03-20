@@ -104,7 +104,7 @@ contract Voting is Ownable {
     }
 
     // ::::::::::::: VOTE ::::::::::::: //
-    /// @dev Make a user vote
+    /// @dev Make a user vote and compute potential results
     /// @param _id of the propsal to vote
     function setVote(uint256 _id) external onlyVoters {
         require(
@@ -119,6 +119,18 @@ contract Voting is Ownable {
         proposalsArray[_id].voteCount++;
 
         emit Voted(msg.sender, _id);
+
+        // continus vote computing to avoid dos gas limit
+        uint256 _winningProposalId;
+        for (uint256 p = 0; p < proposalsArray.length; p++) {
+            if (
+                proposalsArray[p].voteCount >
+                proposalsArray[_winningProposalId].voteCount
+            ) {
+                _winningProposalId = p;
+            }
+        }
+        winningProposalID = _winningProposalId;
     }
 
     // ::::::::::::: STATE ::::::::::::: //
@@ -190,16 +202,6 @@ contract Voting is Ownable {
             workflowStatus == WorkflowStatus.VotingSessionEnded,
             "Current status is not voting session ended"
         );
-        uint256 _winningProposalId;
-        for (uint256 p = 0; p < proposalsArray.length; p++) {
-            if (
-                proposalsArray[p].voteCount >
-                proposalsArray[_winningProposalId].voteCount
-            ) {
-                _winningProposalId = p;
-            }
-        }
-        winningProposalID = _winningProposalId;
 
         workflowStatus = WorkflowStatus.VotesTallied;
         emit WorkflowStatusChange(
