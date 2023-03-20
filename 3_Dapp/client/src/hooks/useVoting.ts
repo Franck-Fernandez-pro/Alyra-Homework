@@ -28,7 +28,7 @@ export function useVoting() {
     abi: artifact.abi,
     signerOrProvider: signerData,
   });
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
   const [voter, setVoter] = useState<Voter | null>(null);
   const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
   const [userStatus, setUserStatus] = useState<'owner' | 'guest' | 'voter'>(
@@ -144,19 +144,23 @@ export function useVoting() {
   async function fetchVoters() {
     if (!voting) return;
 
-    const voterRegisteredFilter = voting.filters.VoterRegistered();
-    if (!voterRegisteredFilter) return;
+    try {
+      const voterRegisteredFilter = voting.filters.VoterRegistered();
+      if (!voterRegisteredFilter) return;
 
-    const voterRegisteredEvents = await voting.queryFilter(
-      voterRegisteredFilter
-    );
-    if (!voterRegisteredEvents) return;
+      const voterRegisteredEvents = await voting.queryFilter(
+        voterRegisteredFilter
+      );
+      if (!voterRegisteredEvents) return;
 
-    const fetchedVoters = voterRegisteredEvents.map(
-      (voter) => voter?.args?.voterAddress
-    ) as string[];
+      const fetchedVoters = voterRegisteredEvents.map(
+        (voter) => voter?.args?.voterAddress
+      ) as string[];
 
-    setVoters(fetchedVoters);
+      setVoters(fetchedVoters);
+    } catch (error) {
+      // console.error(error);
+    }
   }
 
   async function fetchProposals() {
@@ -188,7 +192,6 @@ export function useVoting() {
 
     try {
       const response = await voting.setVote(proposalId);
-      console.log('response:', response);
 
       return response;
     } catch (err) {
