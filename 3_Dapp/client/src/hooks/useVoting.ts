@@ -135,6 +135,7 @@ export function useVoting() {
 
   // FETCH CONTRACT EVENTS
   useEffect(() => {
+    console.log('FETCH CONTRACT EVENTS');
     voters.length === 0 && fetchVoters();
     proposals.length === 0 && fetchProposals();
   });
@@ -172,15 +173,13 @@ export function useVoting() {
       const proposals = result.map((proposal) => {
         //@ts-ignore
         const pId = ethers.BigNumber.from(proposal.args.proposalId).toNumber();
-        // const proposalObject = await voting.getOneProposal(pId);
-
-        // return {
-        //   voteCount: proposalObject.voteCount,
-        //   description: proposalObject.description,
-        // };
-        return pId;
+        return voting.getOneProposal(pId).then((proposalObject: any) => ({
+          voteCount: ethers.BigNumber.from(proposalObject.voteCount).toNumber(),
+          description: proposalObject.description,
+        }));
       });
-      setProposals(proposals);
+      const response = await Promise.all(proposals);
+      setProposals(response);
     } catch (error) {
       // console.error(error);
     }
