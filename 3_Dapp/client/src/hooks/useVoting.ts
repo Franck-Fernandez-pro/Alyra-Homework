@@ -70,9 +70,9 @@ export function useVoting() {
     functionName: 'winningProposalID',
     watch: true,
   });
-  const winningProposalId = ethers.BigNumber.from(
-    winningProposalIdResponse
-  ).toNumber();
+  const winningProposalId = winningProposalIdResponse
+    ? ethers.BigNumber.from(winningProposalIdResponse).toNumber()
+    : 0;
 
   const { data: winningProposalObject } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
@@ -102,8 +102,8 @@ export function useVoting() {
     listener(_, label) {
       //@ts-ignore
       const newVoter = label?.args?.voterAddress;
-      if (!voters.find((voter) => voter == newVoter)) {
-        setLastAddedVoter(newVoter);
+      if (!voters.includes(newVoter)) {
+        setVoters((prevVoter) => [...prevVoter, newVoter]);
       }
     },
   });
@@ -123,7 +123,7 @@ export function useVoting() {
   // FETCH USER STATUS
   useEffect(() => {
     getUserStatus();
-  }, [address]);
+  }, [address, voters]);
 
   // FETCH CURRENT VOTER
   useEffect(() => {
@@ -207,7 +207,7 @@ export function useVoting() {
       return;
     }
 
-    if (lastAddedVoter === address) {
+    if (address && voters.includes(address)) {
       setUserStatus('voter');
       return;
     }
