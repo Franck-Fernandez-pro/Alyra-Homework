@@ -42,7 +42,7 @@ function VotingList({ dataToDisplay }: Props) {
                       }
                       key={idx}
                     >
-                      {proposal}
+                      {proposal.description}
                     </div>
                   ))
               : "Il n'y a pas encore de propositions"}
