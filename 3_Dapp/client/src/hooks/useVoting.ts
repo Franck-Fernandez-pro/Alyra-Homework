@@ -17,6 +17,7 @@ export interface VotedProposalID {
 }
 
 interface Proposal {
+  id: number;
   description: string;
   voteCount: number;
 }
@@ -38,7 +39,7 @@ export function useVoting() {
   // This data are build from contract events
   const [voters, setVoters] = useState<string[]>([]);
   const userIsVoter: boolean = address ? voters?.includes(address) : false;
-  const [proposals, setProposals] = useState<number[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
 
   const { data: votingOwner } = useContractRead({
     address: import.meta.env.VITE_VOTING_ADDR,
@@ -73,25 +74,9 @@ export function useVoting() {
     ? ethers.BigNumber.from(winningProposalIdResponse).toNumber()
     : 0;
 
-  const { data: winningProposalObject } = useContractRead({
-    address: import.meta.env.VITE_VOTING_ADDR,
-    abi: artifact.abi,
-    functionName: 'getOneProposal',
-    args: [winningProposalId],
-    enabled: winningProposalId !== 0,
-    watch: true,
-  });
-
-  const winningProposal: Proposal = winningProposalObject
-    ? ({
-        //@ts-ignore
-        description: winningProposalObject.description,
-        voteCount: ethers.BigNumber.from(
-          //@ts-ignore
-          winningProposalObject.voteCount
-        ).toNumber(),
-      } as Proposal)
-    : { description: '', voteCount: 0 };
+  const winningProposal: Proposal | undefined = proposals.find(
+    (p) => p.id === winningProposalId
+  );
 
   // -------------------------------------------------------------------- SETUP CONTRACT'S EVENT LISTENER
   useContractEvent({
@@ -174,6 +159,7 @@ export function useVoting() {
         //@ts-ignore
         const pId = ethers.BigNumber.from(proposal.args.proposalId).toNumber();
         return voting.getOneProposal(pId).then((proposalObject: any) => ({
+          id: pId,
           voteCount: ethers.BigNumber.from(proposalObject.voteCount).toNumber(),
           description: proposalObject.description,
         }));
