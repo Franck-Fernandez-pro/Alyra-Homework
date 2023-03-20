@@ -158,7 +158,7 @@ export function useVoting() {
       ) as string[];
 
       setVoters(fetchedVoters);
-    } catch (error) 
+    } catch (error) {
       // console.error(error);
     }
   }
