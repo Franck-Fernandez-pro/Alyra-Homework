@@ -30,7 +30,6 @@ export function useVoting() {
   });
   const { address } = useAccount();
   const [voter, setVoter] = useState<Voter | null>(null);
-  const [lastAddedVoter, setLastAddedVoter] = useState<string>('');
   const [userStatus, setUserStatus] = useState<'owner' | 'guest' | 'voter'>(
     'guest'
   );
@@ -300,7 +299,6 @@ export function useVoting() {
     userStatus,
     addVoter,
     addProposal,
-    lastAddedVoter,
     nextStep,
     proposals,
     setVote,

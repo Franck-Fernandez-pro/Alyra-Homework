@@ -39,18 +39,20 @@ export default function Vote({}: {}) {
     >
       <div className="flex space-x-1">
         {proposals &&
-          proposals.map((p, idx) => (
-            <div
-              className={`badge cursor-pointer ${
-                selectedProposal === p ? 'badge-secondary' : 'badge-primary'
-              }`}
-              key={idx}
-              id={p.toString()}
-              onClick={handleSelect}
-            >
-              {p}
-            </div>
-          ))}
+          proposals
+            .filter((v, i) => proposals.indexOf(v) === i)
+            .map((p, idx) => (
+              <div
+                className={`badge cursor-pointer ${
+                  selectedProposal === p ? 'badge-secondary' : 'badge-primary'
+                }`}
+                key={idx}
+                id={p.toString()}
+                onClick={handleSelect}
+              >
+                {p}
+              </div>
+            ))}
       </div>
     </Card>
   );
