@@ -9,7 +9,7 @@ function App() {
     <>
       <NavBar />
       <main>
-        <ToastContainer position="bottom-center" hideProgressBar />
+        <ToastContainer position="bottom-right" hideProgressBar />
         <div className="mt-20 flex gap-9">
           <Workflow />
           <ActionsContainer />
