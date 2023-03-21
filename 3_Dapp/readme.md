@@ -16,6 +16,11 @@ $ npm i
 $ npm run dev
 ```
 
+```
+// client/.env
+VITE_VOTING_ADDR=0x3210...
+
+
 ## Hardhat
 
 - Hardhat
